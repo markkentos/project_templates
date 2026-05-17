@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Anime Shelf Presentation</title>
+    <style>
+        body { margin: 0; background: #f6f4ef; color: #17171f; font-family: "Segoe UI", Arial, sans-serif; }
+        .deck { scroll-snap-type: y mandatory; height: 100vh; overflow-y: auto; }
+        section { min-height: 100vh; scroll-snap-align: start; display: grid; place-items: center; padding: 56px; border-bottom: 1px solid #dedee6; }
+        .slide { width: min(1040px, 100%); }
+        h1 { margin: 0 0 18px; font-size: 58px; line-height: 1; letter-spacing: 0; }
+        h2 { margin: 0 0 18px; font-size: 42px; letter-spacing: 0; }
+        p, li { font-size: 24px; line-height: 1.45; }
+        ul { display: grid; gap: 12px; padding-left: 28px; }
+        .accent { color: #d83a52; font-weight: 800; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .box { padding: 22px; background: white; border: 1px solid #dedee6; border-radius: 8px; }
+        code { background: #ececf2; padding: 3px 8px; border-radius: 6px; }
+        @media (max-width: 760px) { section { padding: 28px; } h1 { font-size: 40px; } h2 { font-size: 32px; } p, li { font-size: 19px; } .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<main class="deck">
+    <section>
+        <div class="slide">
+            <h1>Anime Shelf</h1>
+            <p class="accent">Интернет-магазин аниме атрибутики на Django</p>
+            <p>Каталог, корзина, заказ, аналитика спроса и демонстрация паттернов проектирования.</p>
+        </div>
+    </section>
+    <section>
+        <div class="slide">
+            <h2>Предметная область</h2>
+            <ul>
+                <li>Товары: фигурки, манга, постеры, одежда, аксессуары.</li>
+                <li>Покупатель выбирает товары, скидку, доставку и оформляет заказ.</li>
+                <li>Менеджер анализирует спрос и видит журнал процесса.</li>
+            </ul>
+        </div>
+    </section>
+    <section>
+        <div class="slide">
+            <h2>База данных</h2>
+            <div class="grid">
+                <div class="box">Каталог: <code>Category</code>, <code>Product</code>, <code>Review</code></div>
+                <div class="box">Продажи: <code>Cart</code>, <code>Order</code>, <code>OrderItem</code></div>
+                <div class="box">Аналитика: <code>SalesPoint</code></div>
+                <div class="box">Процесс: <code>ProcessLog</code>, <code>Promotion</code></div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="slide">
+            <h2>Математическая модель</h2>
+            <p>По недельным продажам строится линейный тренд <code>y = ax + b</code>.</p>
+            <p>Модель показывает направление спроса и прогноз продаж следующей недели.</p>
+        </div>
+    </section>
+    <section>
+        <div class="slide">
+            <h2>Паттерны</h2>
+            <ul>
+                <li>Strategy: скидки и доставка.</li>
+                <li>Template Method: оформление заказа и генерация товаров.</li>
+                <li>Abstract Factory + Decorator: создание мерча.</li>
+                <li>State, Observer, Command: жизненный цикл заказа.</li>
+                <li>Adapter, Proxy, Composite, Iterator: клиентский каталог.</li>
+            </ul>
+        </div>
+    </section>
+    <section>
+        <div class="slide">
+            <h2>Демонстрация</h2>
+            <ul>
+                <li><code>/</code> - каталог и рекомендации.</li>
+                <li><code>/cart/</code> - стратегии расчета.</li>
+                <li><code>/orders/&lt;id&gt;/</code> - машина состояний и наблюдатель.</li>
+                <li><code>/patterns/</code> - сводная демонстрация паттернов.</li>
+                <li><code>/tree/</code> - компоновщик и итератор.</li>
+            </ul>
+        </div>
+    </section>
+</main>
+</body>
+</html>

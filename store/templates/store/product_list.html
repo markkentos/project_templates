@@ -1,0 +1,76 @@
+{% extends "store/base.html" %}
+
+{% block title %}{{ title }} | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="catalog-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">интернет-магазин аниме атрибутики</p>
+        <h1>{{ title }}</h1>
+        <p>Фигурки, манга, постеры, одежда и аксессуары по популярным тайтлам.</p>
+    </div>
+    {% if trend and trend_product %}
+        <aside class="trend-panel">
+            <span>Математическая модель</span>
+            <strong>{{ trend_product.anime_title }}</strong>
+            <p>{{ trend.direction }}, прогноз на следующую неделю: {{ trend.forecast }} шт.</p>
+        </aside>
+    {% endif %}
+</section>
+
+<section class="toolbar">
+    <form class="search-form" method="get" action="{% url 'store:product_list' %}">
+        <input type="search" name="q" value="{{ query }}" placeholder="Название товара или аниме">
+        <button type="submit">Найти</button>
+    </form>
+    <div class="category-tabs">
+        <a class="{% if not current_category %}active{% endif %}" href="{% url 'store:product_list' %}">Все</a>
+        {% for category in categories %}
+            <a class="{% if current_category.slug == category.slug %}active{% endif %}" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+        {% endfor %}
+    </div>
+</section>
+
+{% if recommendations %}
+<section class="recommendation-band">
+    <div>
+        <span class="eyebrow">адаптер трендов</span>
+        <h2>Сейчас часто ищут</h2>
+    </div>
+    <div class="mini-products">
+        {% for product in recommendations %}
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="product-grid">
+    {% for product in products %}
+        <article class="product-card">
+            <a class="product-image" href="{{ product.get_absolute_url }}">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                {% endif %}
+            </a>
+            <div class="product-body">
+                <span class="tag">{{ product.get_merch_type_display }}</span>
+                <h2><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h2>
+                <p>{{ product.anime_title }}</p>
+                <div class="product-meta">
+                    <strong>{{ product.price }} руб.</strong>
+                    <span>остаток: {{ product.stock }}</span>
+                </div>
+                <form method="post" action="{% url 'store:add_to_cart' product.slug %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" {% if not product.is_available %}disabled{% endif %}>В корзину</button>
+                </form>
+            </div>
+        </article>
+    {% empty %}
+        <p class="empty">Товары не найдены.</p>
+    {% endfor %}
+</section>
+{% endblock %}

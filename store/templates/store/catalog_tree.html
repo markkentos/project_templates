@@ -1,0 +1,22 @@
+{% extends "store/base.html" %}
+
+{% block title %}Дерево каталога | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Дерево каталога</h1>
+    <p>Компоновщик собирает категории и товары в одну структуру, итератор обходит ее для клиентского отображения.</p>
+</section>
+
+<section class="tree-list">
+    {% for item in flat_items %}
+        <div class="tree-row {{ item.kind }}" style="--indent: {{ item.indent }}px">
+            {% if item.kind == "category" %}
+                <strong>{{ item.render_label }}</strong>
+            {% else %}
+                <a href="{{ item.product.get_absolute_url }}">{{ item.render_label }}</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}

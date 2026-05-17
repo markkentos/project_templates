@@ -1,0 +1,59 @@
+{% extends "store/base.html" %}
+
+{% block title %}Паттерны | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Демонстрация паттернов</h1>
+    <p>Страница показывает, какие части системы реализованы через изученные паттерны.</p>
+</section>
+
+<section class="pattern-grid">
+    <article>
+        <h2>Singleton</h2>
+        <p>{{ settings.brand_name }} использует единые настройки магазина.</p>
+        <code>{{ singleton_ids.0 }} = {{ singleton_ids.1 }}</code>
+    </article>
+    <article>
+        <h2>Strategy</h2>
+        {% for result in pricing_results %}
+            <p>{{ result.label }}: итог {{ result.total }} руб., скидка {{ result.discount }} руб.</p>
+        {% endfor %}
+    </article>
+    <article>
+        <h2>Strategy доставки</h2>
+        {% for result in shipping_results %}
+            <p>{{ result.label }}: {{ result.price }} руб., {{ result.days }}</p>
+        {% endfor %}
+    </article>
+    <article>
+        <h2>Adapter</h2>
+        <p>Внешние тренды подключены к рекомендациям: {{ adapter_titles|join:", " }}.</p>
+    </article>
+    <article>
+        <h2>Composite + Iterator</h2>
+        <p>В клиентском дереве сейчас {{ tree_count }} элементов.</p>
+    </article>
+    <article>
+        <h2>Math model</h2>
+        {% if trend %}
+            <p>{{ trend_product.name }}: {{ trend.direction }}, прогноз {{ trend.forecast }} шт.</p>
+        {% else %}
+            <p>Добавьте точки продаж для прогноза.</p>
+        {% endif %}
+        <p>Точек продаж в БД: {{ sales_points_count }}.</p>
+    </article>
+    <article>
+        <h2>Command</h2>
+        <p>Добавление в корзину, обновление количества, checkout и смена статуса выполняются командами.</p>
+    </article>
+    <article>
+        <h2>Observer</h2>
+        <p>Заказ публикует события, журнал процесса и уведомления реагируют как наблюдатели.</p>
+    </article>
+    <article>
+        <h2>Proxy</h2>
+        <p>Каталог на клиенте читается через заместитель ProductCatalogProxy с кэшированием.</p>
+    </article>
+</section>
+{% endblock %}

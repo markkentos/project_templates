@@ -1,0 +1,54 @@
+{% extends "store/base.html" %}
+
+{% block title %}Заказ #{{ order.id }} | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Заказ #{{ order.id }}</h1>
+    <p>{{ order.customer.name }} · {{ order.get_status_display }} · {{ order.total }} руб.</p>
+</section>
+
+<section class="order-layout">
+    <div class="order-main">
+        <h2>Позиции</h2>
+        {% for item in order.items.all %}
+            <article class="summary-line">
+                <span>{{ item.product_name }} x {{ item.quantity }}</span>
+                <strong>{{ item.line_total }} руб.</strong>
+            </article>
+        {% endfor %}
+        <dl class="summary">
+            <div><dt>Товары</dt><dd>{{ order.subtotal }} руб.</dd></div>
+            <div><dt>Скидка</dt><dd>-{{ order.discount }} руб.</dd></div>
+            <div><dt>Доставка</dt><dd>{{ order.shipping_price }} руб.</dd></div>
+            <div class="total"><dt>Итого</dt><dd>{{ order.total }} руб.</dd></div>
+        </dl>
+    </div>
+    <aside class="state-panel">
+        <h2>Машина состояний</h2>
+        <p>Текущий статус: <strong>{{ order.get_status_display }}</strong></p>
+        {% for transition in transitions %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{{ transition.action }}">
+                <button type="submit">{{ transition.label }}</button>
+            </form>
+        {% empty %}
+            <p class="empty">Финальное состояние.</p>
+        {% endfor %}
+    </aside>
+</section>
+
+<section class="log-section">
+    <h2>Журнал наблюдателя</h2>
+    {% for log in order.logs.all %}
+        <article class="log-line {{ log.level }}">
+            <span>{{ log.created_at|date:"d.m.Y H:i" }}</span>
+            <strong>{{ log.event_type }}</strong>
+            <p>{{ log.message }}</p>
+        </article>
+    {% empty %}
+        <p class="empty">Событий пока нет.</p>
+    {% endfor %}
+</section>
+{% endblock %}

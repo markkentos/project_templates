@@ -1,0 +1,29 @@
+{% extends "store/base.html" %}
+
+{% block title %}Оформление | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="checkout-layout">
+    <form class="form-panel" method="post">
+        {% csrf_token %}
+        <h1>Оформление заказа</h1>
+        {{ form.as_p }}
+        <button type="submit">Создать заказ</button>
+    </form>
+    <aside class="summary-panel">
+        <h2>Состав заказа</h2>
+        {% for item in cart.items.all %}
+            <div class="summary-line">
+                <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                <strong>{{ item.line_total }} руб.</strong>
+            </div>
+        {% endfor %}
+        <dl class="summary">
+            <div><dt>Товары</dt><dd>{{ totals.subtotal }} руб.</dd></div>
+            <div><dt>Скидка</dt><dd>-{{ totals.price.discount }} руб.</dd></div>
+            <div><dt>Доставка</dt><dd>{{ totals.shipping.price }} руб.</dd></div>
+            <div class="total"><dt>Итого</dt><dd>{{ totals.total }} руб.</dd></div>
+        </dl>
+    </aside>
+</section>
+{% endblock %}

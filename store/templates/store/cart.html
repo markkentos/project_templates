@@ -1,0 +1,66 @@
+{% extends "store/base.html" %}
+
+{% block title %}Корзина | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Корзина</h1>
+    <p>Стратегии цены и доставки можно переключать до оформления заказа.</p>
+</section>
+
+<section class="cart-layout">
+    <div class="cart-items">
+        {% for item in cart.items.all %}
+            <article class="cart-item">
+                <div>
+                    <h2>{{ item.product.name }}</h2>
+                    <p>{{ item.product.anime_title }}</p>
+                    <strong>{{ item.product.price }} руб.</strong>
+                </div>
+                <form method="post" class="quantity-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}">
+                    <button type="submit">Обновить</button>
+                </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button class="ghost" type="submit">Удалить</button>
+                </form>
+            </article>
+        {% empty %}
+            <p class="empty">Корзина пуста.</p>
+        {% endfor %}
+    </div>
+
+    <aside class="summary-panel">
+        <form method="get" class="strategy-form">
+            <label>Скидка
+                <select name="pricing">
+                    {% for code, label in pricing_choices %}
+                        <option value="{{ code }}" {% if code == pricing_code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Доставка
+                <select name="shipping">
+                    {% for code, label in shipping_choices %}
+                        <option value="{{ code }}" {% if code == shipping_code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit">Пересчитать</button>
+        </form>
+        <dl class="summary">
+            <div><dt>Товары</dt><dd>{{ totals.subtotal }} руб.</dd></div>
+            <div><dt>Скидка</dt><dd>-{{ totals.price.discount }} руб.</dd></div>
+            <div><dt>Доставка</dt><dd>{{ totals.shipping.price }} руб.</dd></div>
+            <div class="total"><dt>Итого</dt><dd>{{ totals.total }} руб.</dd></div>
+        </dl>
+        <a class="button wide" href="{% url 'store:checkout' %}?pricing={{ pricing_code }}&shipping={{ shipping_code }}">Оформить заказ</a>
+    </aside>
+</section>
+{% endblock %}

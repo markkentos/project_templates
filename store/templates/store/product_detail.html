@@ -1,0 +1,60 @@
+{% extends "store/base.html" %}
+
+{% block title %}{{ product.name }} | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="product-detail">
+    <div class="detail-image">
+        {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+        {% endif %}
+    </div>
+    <div class="detail-info">
+        <a class="back-link" href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+        <h1>{{ product.name }}</h1>
+        <p class="anime-title">{{ product.anime_title }}</p>
+        <p>{{ product.description }}</p>
+        <dl class="specs">
+            <div><dt>Тип</dt><dd>{{ product.get_merch_type_display }}</dd></div>
+            <div><dt>Рейтинг</dt><dd>{{ product.rating }}</dd></div>
+            <div><dt>Продано</dt><dd>{{ product.sales_count }}</dd></div>
+            <div><dt>Остаток</dt><dd>{{ product.stock }}</dd></div>
+        </dl>
+        <div class="buy-row">
+            <strong>{{ product.price }} руб.</strong>
+            <form method="post" action="{% url 'store:add_to_cart' product.slug %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ product.get_absolute_url }}">
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                <button type="submit" {% if not product.is_available %}disabled{% endif %}>Добавить</button>
+            </form>
+        </div>
+        <div class="model-line">
+            <span>Прогноз спроса</span>
+            <strong>{{ trend.forecast }} шт.</strong>
+            <small>{{ trend.direction }}, наклон {{ trend.slope }}</small>
+        </div>
+    </div>
+</section>
+
+<section class="reviews-layout">
+    <div>
+        <h2>Отзывы</h2>
+        {% for review in product.reviews.all %}
+            <article class="review">
+                <strong>{{ review.customer_name }}</strong>
+                <span>{{ review.rating }}/5</span>
+                <p>{{ review.text }}</p>
+            </article>
+        {% empty %}
+            <p class="empty">Пока нет отзывов.</p>
+        {% endfor %}
+    </div>
+    <form class="form-panel" method="post">
+        {% csrf_token %}
+        <h2>Оставить отзыв</h2>
+        {{ form.as_p }}
+        <button type="submit">Отправить</button>
+    </form>
+</section>
+{% endblock %}
