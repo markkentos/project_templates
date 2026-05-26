@@ -30,9 +30,13 @@
             </form>
         </div>
         <div class="model-line">
-            <span>Прогноз спроса</span>
+            <span>Прогноз продаж</span>
             <strong>{{ trend.forecast }} шт.</strong>
-            <small>{{ trend.direction }}, наклон {{ trend.slope }}</small>
+            <small>
+                спрос {{ trend.demand_forecast }} шт.,
+                предложение {{ trend.supply_forecast }} шт.;
+                {{ trend.supply_direction }}
+            </small>
         </div>
     </div>
 </section>

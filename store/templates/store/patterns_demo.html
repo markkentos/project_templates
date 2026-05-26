@@ -37,7 +37,11 @@
     <article>
         <h2>Math model</h2>
         {% if trend %}
-            <p>{{ trend_product.name }}: {{ trend.direction }}, прогноз {{ trend.forecast }} шт.</p>
+            <p>
+                {{ trend_product.name }}: спрос {{ trend.demand_forecast }} шт.,
+                предложение {{ trend.supply_forecast }} шт.,
+                прогноз продаж {{ trend.forecast }} шт.
+            </p>
         {% else %}
             <p>Добавьте точки продаж для прогноза.</p>
         {% endif %}

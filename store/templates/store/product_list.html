@@ -13,7 +13,11 @@
         <aside class="trend-panel">
             <span>Математическая модель</span>
             <strong>{{ trend_product.anime_title }}</strong>
-            <p>{{ trend.direction }}, прогноз на следующую неделю: {{ trend.forecast }} шт.</p>
+            <p>
+                {{ trend.direction }}: спрос {{ trend.demand_forecast }} шт.,
+                предложение {{ trend.supply_forecast }} шт.,
+                прогноз продаж {{ trend.forecast }} шт.
+            </p>
         </aside>
     {% endif %}
 </section>

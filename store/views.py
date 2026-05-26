@@ -40,7 +40,7 @@ def home(request):
     trend_product = Product.objects.filter(sales_points__isnull=False).distinct().order_by("-sales_count").first()
     trend = None
     if trend_product:
-        trend = SalesTrendModel().calculate(trend_product.sales_points.all())
+        trend = SalesTrendModel().calculate(trend_product.sales_points.all(), supply_units=trend_product.stock)
     return render(
         request,
         "store/product_list.html",
@@ -90,7 +90,7 @@ def product_detail(request, slug):
     else:
         form = ReviewForm()
 
-    trend = SalesTrendModel().calculate(product.sales_points.all())
+    trend = SalesTrendModel().calculate(product.sales_points.all(), supply_units=product.stock)
     return render(
         request,
         "store/product_detail.html",
@@ -201,7 +201,7 @@ def patterns_demo(request):
     pricing_results = [strategy.calculate(sample_subtotal) for strategy in [get_pricing_strategy(code) for code, _ in pricing_choices()]]
     shipping_results = [get_shipping_strategy(code).calculate(sample_subtotal) for code, _ in shipping_choices()]
     trend_product = Product.objects.filter(sales_points__isnull=False).distinct().first()
-    trend = SalesTrendModel().calculate(trend_product.sales_points.all()) if trend_product else None
+    trend = SalesTrendModel().calculate(trend_product.sales_points.all(), supply_units=trend_product.stock) if trend_product else None
     flat_tree = list(CatalogIterator(build_catalog_tree()))
     return render(
         request,

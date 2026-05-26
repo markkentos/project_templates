@@ -48,7 +48,10 @@ class StoreWorkflowTests(TestCase):
         result = SalesTrendModel().calculate(self.product.sales_points.all())
 
         self.assertEqual(result.direction, "растущий спрос")
-        self.assertEqual(result.forecast, 11.0)
+        self.assertEqual(result.demand_forecast, 11.0)
+        self.assertEqual(result.supply_forecast, 10.0)
+        self.assertEqual(result.forecast, 10.0)
+        self.assertEqual(result.supply_direction, "предложение ниже спроса")
 
     def test_pricing_strategy_applies_otaku_discount(self):
         result = get_pricing_strategy("otaku").calculate(Decimal("2000.00"))
