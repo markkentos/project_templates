@@ -87,6 +87,10 @@ class OrderProcessTemplate(ABC):
             product.stock -= item.quantity
             product.sales_count += item.quantity
             product.save(update_fields=["stock", "sales_count", "updated_at"])
+        
+        # Сброс статического кэша каталога (паттерн Заместитель / Proxy)
+        from store.services.proxy import ProductCatalogProxy
+        ProductCatalogProxy.clear_cache()
 
     def close_cart(self, cart):
         cart.status = Cart.Status.CHECKED_OUT

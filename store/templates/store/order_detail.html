@@ -5,12 +5,51 @@
 {% block content %}
 <section class="page-heading">
     <h1>Заказ #{{ order.id }}</h1>
-    <p>{{ order.customer.name }} · {{ order.get_status_display }} · {{ order.total }} руб.</p>
+    <p>{{ order.customer.name }} · {{ order.total }} руб. · Текущий статус: <strong>{{ order.get_status_display }}</strong></p>
+
+    <!-- Визуальный Степпер статусов заказа (Этап 3: Машина состояний) -->
+    {% if order.status == 'cancelled' %}
+        <div class="cancelled-banner">
+            ❌ Заказ отменен и аннулирован.
+        </div>
+    {% else %}
+        <div class="order-stepper">
+            <div class="step {% if order.status == 'created' or order.status == 'paid' or order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+                <div class="step-icon">1</div>
+                <div class="step-label">Создан</div>
+            </div>
+            <div class="step-line {% if order.status == 'paid' or order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}"></div>
+            
+            <div class="step {% if order.status == 'paid' or order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+                <div class="step-icon">2</div>
+                <div class="step-label">Оплачен</div>
+            </div>
+            <div class="step-line {% if order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}"></div>
+            
+            <div class="step {% if order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+                <div class="step-icon">3</div>
+                <div class="step-label">Упакован</div>
+            </div>
+            <div class="step-line {% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}"></div>
+            
+            <div class="step {% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+                <div class="step-icon">4</div>
+                <div class="step-label">Отправлен</div>
+            </div>
+            <div class="step-line {% if order.status == 'delivered' %}active{% endif %}"></div>
+            
+            <div class="step {% if order.status == 'delivered' %}active{% endif %}">
+                <div class="step-icon">5</div>
+                <div class="step-label">Доставлен</div>
+            </div>
+        </div>
+    {% endif %}
 </section>
 
-<section class="order-layout">
+
+<section class="order-layout" style="{% if not is_manager %}grid-template-columns: 1fr;{% endif %}">
     <div class="order-main">
-        <h2>Позиции</h2>
+        <h2>Позиции в заказе</h2>
         {% for item in order.items.all %}
             <article class="summary-line">
                 <span>{{ item.product_name }} x {{ item.quantity }}</span>
@@ -23,7 +62,17 @@
             <div><dt>Доставка</dt><dd>{{ order.shipping_price }} руб.</dd></div>
             <div class="total"><dt>Итого</dt><dd>{{ order.total }} руб.</dd></div>
         </dl>
+        
+        {% if not is_manager and order.status == 'created' %}
+            <form method="post" style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line);">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="cancel">
+                <button type="submit" class="button btn-cancel" style="background-color: var(--accent); border-color: var(--accent); max-width: 240px; width: 100%;">Отменить заказ</button>
+            </form>
+        {% endif %}
     </div>
+    
+    {% if is_manager %}
     <aside class="state-panel">
         <h2>Машина состояний</h2>
         <p>Текущий статус: <strong>{{ order.get_status_display }}</strong></p>
@@ -37,18 +86,6 @@
             <p class="empty">Финальное состояние.</p>
         {% endfor %}
     </aside>
-</section>
-
-<section class="log-section">
-    <h2>Журнал наблюдателя</h2>
-    {% for log in order.logs.all %}
-        <article class="log-line {{ log.level }}">
-            <span>{{ log.created_at|date:"d.m.Y H:i" }}</span>
-            <strong>{{ log.event_type }}</strong>
-            <p>{{ log.message }}</p>
-        </article>
-    {% empty %}
-        <p class="empty">Событий пока нет.</p>
-    {% endfor %}
+    {% endif %}
 </section>
 {% endblock %}

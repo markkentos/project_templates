@@ -1,0 +1,185 @@
+{% extends "store/base.html" %}
+
+{% block title %}Панель Менеджера | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Панель Менеджера</h1>
+    <p>Администрирование заказов, системный мониторинг и математическое прогнозирование остатков.</p>
+</section>
+
+<!-- Вкладки управления (Tabs) -->
+<section class="manager-tabs">
+    <a href="?tab=orders" class="tab-link {% if active_tab == 'orders' %}active{% endif %}">📦 Управление заказами</a>
+    <a href="?tab=logs" class="tab-link {% if active_tab == 'logs' %}active{% endif %}">🔔 Журнал процессов (Observer)</a>
+    <a href="?tab=forecast" class="tab-link {% if active_tab == 'forecast' %}active{% endif %}">📊 Математическая модель спроса</a>
+</section>
+
+<!-- Содержимое вкладок -->
+<section class="manager-tab-content">
+    {% if active_tab == 'orders' %}
+        <!-- Вкладка 1: Заказы -->
+        <div class="manager-card wide-card">
+            <h3>📦 Все заказы в системе</h3>
+            <p style="color:var(--muted); font-size:14px; margin-bottom:18px;">Нажмите на номер заказа, чтобы просмотреть подробности и изменить статус в машине состояний.</p>
+            <div class="table-container">
+                <table class="manager-table">
+                    <thead>
+                        <tr>
+                            <th>Номер</th>
+                            <th>Покупатель</th>
+                            <th>Email</th>
+                            <th>Доставка / Оплата</th>
+                            <th>Статус</th>
+                            <th>Сумма</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td><a href="{% url 'store:order_detail' order.id %}" class="order-link">#{{ order.id }}</a></td>
+                                <td><strong>{{ order.customer.name }}</strong></td>
+                                <td>{{ order.customer.email }}</td>
+                                <td>
+                                    <small>{{ order.get_delivery_method_display }} / {{ order.get_pricing_strategy_display }}</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge {{ order.status }}">{{ order.get_status_display }}</span>
+                                </td>
+                                <td><strong>{{ order.total }} руб.</strong></td>
+                                <td>
+                                    <a href="{% url 'store:order_detail' order.id %}" class="button btn-small">Перейти</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="empty" style="text-align:center; padding:30px;">Заказов в системе пока нет.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    {% elif active_tab == 'logs' %}
+        <!-- Вкладка 2: Логи -->
+        <div class="manager-card wide-card">
+            <h3>🔔 Журнал системных событий (Observer Logs)</h3>
+            <p style="color:var(--muted); font-size:14px; margin-bottom:18px;">Логирование в реальном времени изменений заказов и системных уведомлений (паттерн Наблюдатель).</p>
+            <div class="log-container" style="max-height: 500px;">
+                {% for log in logs %}
+                    <div class="log-item {{ log.level }}">
+                        <span class="log-time">{{ log.created_at|date:"H:i:s d.m" }}</span>
+                        <strong class="log-type">[{{ log.event_type }}]</strong>
+                        <span class="log-msg">{{ log.message }}</span>
+                    </div>
+                {% empty %}
+                    <p class="empty" style="text-align:center; padding:30px;">Журнал логов пока пуст.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+    {% elif active_tab == 'forecast' %}
+        <!-- Вкладка 3: Математическая модель спроса -->
+        <div class="manager-card">
+            <h3>📊 Аналитическое прогнозирование дефицита</h3>
+            <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">
+                Математический анализ методом наименьших квадратов линейной регрессии ($y = ax + b$). Выберите товар из каталога для расчёта спроса и дефицита на следующую неделю.
+            </p>
+            
+            <form method="get" class="product-selector-form" style="display:flex; gap:12px; align-items:center; margin-bottom:30px; background:var(--bg); padding:16px; border-radius:8px; border:1px solid var(--line);">
+                <input type="hidden" name="tab" value="forecast">
+                <label for="product_id" style="font-weight:bold; color:var(--muted); font-size:14px;">Выберите товар:</label>
+                <select name="product_id" id="product_id" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--line); font-size:14px; font-weight:700;" onchange="this.form.submit()">
+                    <option value="">-- Выберите товар из списка --</option>
+                    {% for p in products %}
+                        <option value="{{ p.id }}" {% if selected_product.id == p.id %}selected{% endif %}>{{ p.name }} ({{ p.anime_title }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="button">Рассчитать</button>
+            </form>
+            
+            {% if selected_product %}
+                <div class="forecast-result-grid" style="display:grid; grid-template-columns:1.2fr 0.8fr; gap:24px;">
+                    <!-- Результаты расчета -->
+                    <div class="forecast-details" style="background:#fffcf5; border:1px solid #efd391; padding:24px; border-radius:12px;">
+                        <h4 style="margin-top:0; color:#c38415; font-size:20px; font-weight:800; border-bottom:1px solid #efd391; padding-bottom:10px; margin-bottom:18px;">
+                            Результаты расчёта для «{{ selected_product.name }}»
+                        </h4>
+                        
+                        <dl class="specs" style="margin-bottom:20px;">
+                            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(239,211,145,0.4);"><dt>Коэффициент тренда спроса ($a$):</dt><dd>{{ trend.slope }}</dd></div>
+                            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(239,211,145,0.4);"><dt>Базовый спрос ($b$):</dt><dd>{{ trend.intercept }}</dd></div>
+                            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(239,211,145,0.4);"><dt>Уравнение регрессии:</dt><dd><strong>y = {{ trend.slope }} * x + {{ trend.intercept }}</strong></dd></div>
+                            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(239,211,145,0.4);"><dt>Направление спроса:</dt><dd style="color:var(--teal);"><strong>{{ trend.direction }}</strong></dd></div>
+                        </dl>
+                        
+                        <div class="forecast-main-numbers" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin:20px 0;">
+                            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #efd391; text-align:center;">
+                                <small style="display:block; color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:bold; margin-bottom:4px;">Спрос (Прогноз)</small>
+                                <strong style="font-size:24px; color:var(--ink);">{{ trend.demand_forecast }} шт.</strong>
+                            </div>
+                            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #efd391; text-align:center;">
+                                <small style="display:block; color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:bold; margin-bottom:4px;">Склад (Предложение)</small>
+                                <strong style="font-size:24px; color:var(--ink);">{{ selected_product.stock }} шт.</strong>
+                            </div>
+                            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #efd391; text-align:center;">
+                                <small style="display:block; color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:bold; margin-bottom:4px;">Прогноз продаж</small>
+                                <strong style="font-size:24px; color:var(--teal);">{{ trend.forecast }} шт.</strong>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top:20px; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; {% if trend.stock_gap < 0 %}background:#fde5e3; border:1px solid #f9c2bd; color:var(--accent-dark);{% else %}background:#eaf7f3; border:1px solid #b9d9d1; color:var(--teal);{% endif %}">
+                            <span style="font-size:24px;">{% if trend.stock_gap < 0 %}⚠️{% else %}✅{% endif %}</span>
+                            <div>
+                                <strong>Рекомендация по закупкам:</strong>
+                                <p style="margin:4px 0 0 0; font-size:13px; font-weight:normal;">
+                                    {% if trend.stock_gap < 0 %}
+                                        Прогнозируется дефицит в количестве <strong>{{ trend.stock_gap|first|default:trend.stock_gap }} шт.</strong> Необходимо срочно заказать товар на склад!
+                                    {% else %}
+                                        Запасов товара на складе достаточно для покрытия прогнозируемого спроса. Дополнительная закупка не требуется.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Таблица продаж -->
+                    <div class="sales-history" style="background:white; border:1px solid var(--line); padding:20px; border-radius:12px;">
+                        <h4 style="margin-top:0; margin-bottom:12px; font-size:16px; border-bottom:1px solid var(--line); padding-bottom:8px; color:var(--ink);">История продаж по неделям</h4>
+                        <div class="table-container">
+                            <table class="manager-table" style="font-size:13px;">
+                                <thead>
+                                    <tr>
+                                        <th>Неделя</th>
+                                        <th>Продано единиц</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for point in selected_product.sales_points.all %}
+                                        <tr>
+                                            <td>Неделя {{ point.week_number }}</td>
+                                            <td><strong>{{ point.units_sold }} шт.</strong></td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="2" class="empty" style="text-align:center;">Данных продаж нет.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div style="text-align:center; padding:50px; background:#fafafa; border:2px dashed var(--line); border-radius:12px;">
+                    <span style="font-size:48px;">📈</span>
+                    <h4 style="margin:16px 0 8px 0; font-size:18px; color:var(--muted);">Товар не выбран</h4>
+                    <p style="margin:0; color:var(--muted); font-size:14px;">Пожалуйста, выберите товар из выпадающего списка выше для запуска аналитической модели прогнозирования.</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

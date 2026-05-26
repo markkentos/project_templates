@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f1a30" />
+      <stop offset="50%" stop-color="#141120" />
+      <stop offset="100%" stop-color="#08070d" />
+    </linearGradient>
+    <!-- Crystal Facet Gradients -->
+    <linearGradient id="gemLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a072ff" />
+      <stop offset="100%" stop-color="#7000ff" />
+    </linearGradient>
+    <linearGradient id="gemDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4e2b85" />
+      <stop offset="100%" stop-color="#23103f" />
+    </linearGradient>
+    <linearGradient id="gemHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#a072ff" />
+    </linearGradient>
+    <!-- Gold Trim Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe066" />
+      <stop offset="50%" stop-color="#f5b041" />
+      <stop offset="100%" stop-color="#d35400" />
+    </linearGradient>
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Card Canvas -->
+  <rect width="400" height="400" rx="24" fill="url(#bgGrad)" />
+  
+  <!-- Magic Aura Ellipses -->
+  <circle cx="200" cy="200" r="95" fill="none" stroke="#7000ff" stroke-width="1.5" stroke-dasharray="8, 16" opacity="0.3" filter="url(#neonGlow)" />
+  <circle cx="200" cy="200" r="115" fill="none" stroke="#00f2fe" stroke-width="1" stroke-dasharray="3, 10" opacity="0.2" filter="url(#neonGlow)" />
+  
+  <!-- Backside purple glow aura -->
+  <circle cx="200" cy="205" r="70" fill="#7000ff" opacity="0.4" filter="url(#neonGlow)" />
+  
+  <!-- Sparkling Stars & Rays -->
+  <g fill="#ffffff" filter="url(#neonGlow)">
+    <circle cx="200" cy="205" r="30" fill="url(#gemHighlight)" opacity="0.2" />
+    <!-- Light Ray Vertical -->
+    <ellipse cx="200" cy="205" rx="3" ry="120" opacity="0.4" fill="url(#gemHighlight)" />
+    <!-- Light Ray Horizontal -->
+    <ellipse cx="200" cy="205" rx="120" ry="3" opacity="0.4" fill="url(#gemHighlight)" />
+    
+    <!-- Sparkle 1 -->
+    <path d="M130,130 L132,134 L138,135 L132,136 L130,140 L128,136 L122,135 L128,134 Z" opacity="0.8"/>
+    <!-- Sparkle 2 -->
+    <path d="M270,120 L271,123 L275,124 L271,125 L270,128 L269,125 L265,124 L269,123 Z" opacity="0.9"/>
+  </g>
+  
+  <!-- Elegant Chain Links -->
+  <g fill="none" stroke="url(#goldGrad)" stroke-width="3" opacity="0.8">
+    <!-- Center Chain hanging down -->
+    <path d="M200,30 Q203,45 198,60" />
+    <path d="M198,56 Q203,71 198,86" />
+    <path d="M198,82 Q202,97 200,112" />
+    <path d="M200,108 Q198,123 200,135" />
+    <!-- Connector Ring -->
+    <circle cx="200" cy="135" r="8" stroke-width="4.5" />
+  </g>
+  
+  <!-- Geometric Magical Faceted Crystal Pendant -->
+  <!-- Back Outer Gold Framing Trim -->
+  <polygon points="200,130 255,160 255,250 200,280 145,250 145,160" fill="url(#goldGrad)" stroke="#141120" stroke-width="2.5" />
+  
+  <!-- Facet Gemstones (Inner layout) -->
+  <!-- Top Center facet -->
+  <polygon points="200,137 247,163 200,205" fill="url(#gemLight)" stroke="#141120" stroke-width="1.5" />
+  <polygon points="200,137 153,163 200,205" fill="url(#gemDark)" stroke="#141120" stroke-width="1.5" />
+  
+  <!-- Side facets -->
+  <polygon points="247,163 247,247 200,205" fill="url(#gemDark)" stroke="#141120" stroke-width="1.5" />
+  <polygon points="153,163 153,247 200,205" fill="url(#gemLight)" stroke="#141120" stroke-width="1.5" />
+  
+  <!-- Bottom Center facet -->
+  <polygon points="247,247 200,273 200,205" fill="url(#gemDark)" stroke="#141120" stroke-width="1.5" />
+  <polygon points="153,247 200,273 200,205" fill="url(#gemLight)" stroke="#141120" stroke-width="1.5" />
+  
+  <!-- Glowing Glassmorphic Glare Core (Overlay) -->
+  <polygon points="200,150 235,170 220,230 180,230 165,170" fill="url(#gemHighlight)" opacity="0.3" filter="url(#neonGlow)" />
+  
+  <!-- Bright center reflection dot -->
+  <circle cx="180" cy="180" r="3" fill="#ffffff" filter="url(#neonGlow)" />
+  
+  <!-- Title Badge Label -->
+  <rect x="130" y="348" width="140" height="28" rx="14" fill="#141120" stroke="#a072ff" stroke-width="2" />
+  <text x="200" y="367" font-family="'Outfit', 'Inter', sans-serif" font-weight="bold" font-size="12" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">ACCESSORY</text>
+</svg>

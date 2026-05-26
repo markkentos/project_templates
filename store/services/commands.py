@@ -6,12 +6,16 @@ from store.models import Cart, CartItem, Order, Product
 
 from .processes import StandardOrderProcess
 from .states import OrderStateMachine
+from .singletons import SingletonMeta
 
 
 class Command(ABC):
     @abstractmethod
     def execute(self):
         raise NotImplementedError
+
+    def undo(self):
+        pass
 
 
 def get_open_cart(request):
@@ -43,16 +47,32 @@ class AddToCartCommand(Command):
         item.save(update_fields=["quantity", "updated_at"])
         return cart
 
+    def undo(self):
+        product = get_object_or_404(Product, slug=self.product_slug)
+        cart = get_open_cart(self.request)
+        item = CartItem.objects.filter(cart=cart, product=product).first()
+        if item:
+            if item.quantity <= self.quantity:
+                item.delete()
+            else:
+                item.quantity -= self.quantity
+                item.save(update_fields=["quantity", "updated_at"])
+        return cart
+
 
 class UpdateCartItemCommand(Command):
     def __init__(self, request, item_id, quantity):
         self.request = request
         self.item_id = item_id
         self.quantity = int(quantity)
+        self.old_quantity = None
+        self.product = None
 
     def execute(self):
         cart = get_open_cart(self.request)
         item = get_object_or_404(CartItem, pk=self.item_id, cart=cart)
+        self.old_quantity = item.quantity
+        self.product = item.product
         if self.quantity <= 0:
             item.delete()
             return cart
@@ -62,16 +82,45 @@ class UpdateCartItemCommand(Command):
         item.save(update_fields=["quantity", "updated_at"])
         return cart
 
+    def undo(self):
+        if self.old_quantity is not None and self.product is not None:
+            cart = get_open_cart(self.request)
+            item, _ = CartItem.objects.get_or_create(
+                cart=cart,
+                product=self.product,
+                defaults={"quantity": self.old_quantity}
+            )
+            item.quantity = self.old_quantity
+            item.save(update_fields=["quantity", "updated_at"])
+            return cart
+
 
 class RemoveCartItemCommand(Command):
     def __init__(self, request, item_id):
         self.request = request
         self.item_id = item_id
+        self.product = None
+        self.old_quantity = None
 
     def execute(self):
         cart = get_open_cart(self.request)
-        get_object_or_404(CartItem, pk=self.item_id, cart=cart).delete()
+        item = get_object_or_404(CartItem, pk=self.item_id, cart=cart)
+        self.product = item.product
+        self.old_quantity = item.quantity
+        item.delete()
         return cart
+
+    def undo(self):
+        if self.product is not None and self.old_quantity is not None:
+            cart = get_open_cart(self.request)
+            item, _ = CartItem.objects.get_or_create(
+                cart=cart,
+                product=self.product,
+                defaults={"quantity": self.old_quantity}
+            )
+            item.quantity = self.old_quantity
+            item.save(update_fields=["quantity", "updated_at"])
+            return cart
 
 
 class CheckoutCommand(Command):
@@ -104,3 +153,28 @@ class AdvanceOrderStateCommand(Command):
     def execute(self):
         order = get_object_or_404(Order, pk=self.order_id)
         return OrderStateMachine().apply(order, self.action)
+
+
+class CommandHistoryRegistry(metaclass=SingletonMeta):
+    """Синглтон реестр для отмены команд в текущей сессии."""
+    def __init__(self):
+        self._history = {}  # session_key -> stack of Command objects
+
+    def push(self, session_key, command):
+        if not session_key:
+            return
+        self._history.setdefault(session_key, []).append(command)
+
+    def pop(self, session_key):
+        if not session_key:
+            return None
+        stack = self._history.get(session_key, [])
+        if stack:
+            return stack.pop()
+        return None
+
+    def has_history(self, session_key):
+        if not session_key:
+            return False
+        return len(self._history.get(session_key, [])) > 0
+

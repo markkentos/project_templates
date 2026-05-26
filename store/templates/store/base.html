@@ -15,11 +15,33 @@
         </a>
         <nav class="main-nav">
             <a href="{% url 'store:product_list' %}">Каталог</a>
-            <a href="{% url 'store:catalog_tree' %}">Дерево</a>
-            <a href="{% url 'store:patterns_demo' %}">Паттерны</a>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'store:profile' %}">Мой профиль</a>
+                {% if request.user.is_staff %}
+                    <a href="{% url 'store:manager_dashboard' %}">Панель Менеджера</a>
+                {% endif %}
+            {% endif %}
             <a class="cart-link" href="{% url 'store:cart' %}">Корзина <span>{{ cart_items_count }}</span></a>
+            {% if request.user.is_authenticated %}
+                <span class="user-greeting">
+                    Привет, <strong>{{ request.user.username }}</strong>
+                    {% if request.user.is_staff %}
+                        <span class="role-badge manager-active">Менеджер</span>
+                    {% else %}
+                        <span class="role-badge client-active">Покупатель</span>
+                    {% endif %}
+                </span>
+                <form method="post" action="{% url 'store:logout' %}" style="display: inline-block;">
+                    {% csrf_token %}
+                    <button type="submit" class="auth-btn logout" style="font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; transition: all 0.2s ease;">Выйти</button>
+                </form>
+            {% else %}
+                <a href="{% url 'store:login' %}" class="auth-btn login">Войти</a>
+            {% endif %}
         </nav>
+
     </header>
+
 
     {% if messages %}
         <div class="messages">
@@ -32,5 +54,22 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Восстановление позиции скролла, если она была сохранена в сессии
+            const scrollPos = sessionStorage.getItem("scrollPosition");
+            if (scrollPos) {
+                window.scrollTo(0, parseInt(scrollPos, 10));
+                sessionStorage.removeItem("scrollPosition");
+            }
+            
+            // Сохранение позиции скролла при отправке любой POST-формы
+            document.addEventListener("submit", function(e) {
+                if (e.target.method === "post") {
+                    sessionStorage.setItem("scrollPosition", window.scrollY);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

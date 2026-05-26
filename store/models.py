@@ -76,6 +76,13 @@ class Product(TimeStampedModel):
 
 
 class Customer(TimeStampedModel):
+    user = models.OneToOneField(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="customer_profile",
+    )
     name = models.CharField(max_length=160)
     email = models.EmailField()
     phone = models.CharField(max_length=40, blank=True)
@@ -83,6 +90,7 @@ class Customer(TimeStampedModel):
 
     class Meta:
         ordering = ["-created_at"]
+
         verbose_name = "Покупатель"
         verbose_name_plural = "Покупатели"
 
@@ -176,6 +184,12 @@ class Order(TimeStampedModel):
     def get_absolute_url(self):
         return reverse("store:order_detail", kwargs={"pk": self.pk})
 
+    @property
+    def allowed_transitions(self):
+        from store.services.states import OrderStateMachine
+        return OrderStateMachine().allowed_transitions(self)
+
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
@@ -200,7 +214,7 @@ class Review(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
     customer_name = models.CharField(max_length=120)
     rating = models.PositiveSmallIntegerField(default=5)
-    text = models.TextField()
+    text = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-created_at"]

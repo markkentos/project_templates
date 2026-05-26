@@ -3,10 +3,16 @@
 {% block title %}Корзина | Anime Shelf{% endblock %}
 
 {% block content %}
-<section class="page-heading">
-    <h1>Корзина</h1>
-    <p>Стратегии цены и доставки можно переключать до оформления заказа.</p>
+<section class="page-heading cart-header-flex">
+    <div>
+        <h1>Корзина</h1>
+        <p>Стратегии цены и доставки можно переключать до оформления заказа.</p>
+    </div>
+    {% if has_history %}
+        <a href="{% url 'store:undo_cart_action' %}" class="button undo-btn" title="Откатить добавление, удаление или изменение товара">↩ Отменить последнее действие</a>
+    {% endif %}
 </section>
+
 
 <section class="cart-layout">
     <div class="cart-items">
@@ -37,22 +43,21 @@
     </div>
 
     <aside class="summary-panel">
-        <form method="get" class="strategy-form">
+        <form method="get" class="strategy-form" id="strategyForm">
             <label>Скидка
-                <select name="pricing">
+                <select name="pricing" onchange="this.form.submit()">
                     {% for code, label in pricing_choices %}
                         <option value="{{ code }}" {% if code == pricing_code %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </label>
             <label>Доставка
-                <select name="shipping">
+                <select name="shipping" onchange="this.form.submit()">
                     {% for code, label in shipping_choices %}
                         <option value="{{ code }}" {% if code == shipping_code %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </label>
-            <button type="submit">Пересчитать</button>
         </form>
         <dl class="summary">
             <div><dt>Товары</dt><dd>{{ totals.subtotal }} руб.</dd></div>

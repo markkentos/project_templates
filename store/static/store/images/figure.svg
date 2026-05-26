@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d1b4e" />
+      <stop offset="50%" stop-color="#1f1235" />
+      <stop offset="100%" stop-color="#0f091d" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff758c" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ff7eb3" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="pedestalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff758c" />
+      <stop offset="50%" stop-color="#ff7eb3" />
+      <stop offset="100%" stop-color="#7000ff" />
+    </linearGradient>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Card Canvas -->
+  <rect width="400" height="400" rx="24" fill="url(#bgGrad)" />
+  
+  <!-- Glowing Ambient Aura -->
+  <circle cx="200" cy="180" r="110" fill="url(#glowGrad)" filter="url(#neonGlow)" />
+  <circle cx="200" cy="180" r="80" fill="none" stroke="#ff7eb3" stroke-width="2" stroke-dasharray="4, 12" filter="url(#neonGlow)" opacity="0.6" />
+  
+  <!-- Magic Sparkles and Stars -->
+  <g fill="#ffffff">
+    <!-- Star 1 -->
+    <path d="M120,100 L123,108 L131,110 L123,112 L120,120 L117,112 L109,110 L117,108 Z" opacity="0.8"/>
+    <!-- Star 2 -->
+    <path d="M280,120 L282,126 L288,128 L282,130 L280,136 L278,130 L272,128 L278,126 Z" opacity="0.9"/>
+    <!-- Star 3 -->
+    <path d="M140,240 L141,244 L145,245 L141,246 L140,250 L139,246 L135,245 L139,244 Z" opacity="0.6"/>
+    <!-- Small dots -->
+    <circle cx="160" cy="80" r="2" opacity="0.5" />
+    <circle cx="240" cy="70" r="3" opacity="0.7" />
+    <circle cx="260" cy="220" r="2" opacity="0.4" />
+  </g>
+  
+  <!-- Chibi Figurines Contours and Outlines -->
+  <!-- Back hair/Wings silhouette -->
+  <path d="M150,140 Q130,160 130,195 Q140,230 160,235 C170,220 180,210 200,210 C220,210 230,220 240,235 Q260,230 270,195 Q270,160 250,140 Z" fill="#3a1e5d" opacity="0.8" />
+  
+  <!-- Hair Base -->
+  <path d="M165,130 Q200,100 235,130 Q245,150 245,180 Q225,185 200,185 Q175,185 155,180 Q155,150 165,130 Z" fill="#ff7eb3" />
+  
+  <!-- Neko Ears (Cat ears detail for cuteness!) -->
+  <path d="M165,125 L150,90 L180,110 Z" fill="#ff758c" stroke="#ffffff" stroke-width="2" />
+  <path d="M235,125 L250,90 L220,110 Z" fill="#ff758c" stroke="#ffffff" stroke-width="2" />
+  
+  <!-- Face/Skin -->
+  <ellipse cx="200" cy="155" rx="35" ry="30" fill="#fff0e0" stroke="#ff7eb3" stroke-width="2" />
+  
+  <!-- Hair Front Bangs -->
+  <path d="M165,130 Q180,145 190,145 Q200,135 200,145 Q200,145 210,145 Q220,145 235,130 Q220,135 200,135 Q180,135 165,130 Z" fill="#ff7eb3" />
+  
+  <!-- Cute Closed Eyes & Blushing cheeks -->
+  <path d="M178,155 Q185,160 190,155" fill="none" stroke="#7000ff" stroke-width="3" stroke-linecap="round" />
+  <path d="M222,155 Q215,160 210,155" fill="none" stroke="#7000ff" stroke-width="3" stroke-linecap="round" />
+  <ellipse cx="176" cy="165" rx="6" ry="3" fill="#ff758c" opacity="0.6" />
+  <ellipse cx="224" cy="165" rx="6" ry="3" fill="#ff758c" opacity="0.6" />
+  <path d="M197,166 Q200,169 203,166" fill="none" stroke="#7000ff" stroke-width="2" />
+  
+  <!-- Dress/Body silhouette -->
+  <path d="M185,185 L170,225 L230,225 L215,185 Z" fill="#7000ff" stroke="#ffffff" stroke-width="2" />
+  <path d="M170,225 Q200,240 230,225 L235,235 Q200,250 165,235 Z" fill="#ff758c" />
+  
+  <!-- Glowing Glassmorphic Pedestal Base -->
+  <polygon points="120,290 280,290 310,320 90,320" fill="url(#pedestalGrad)" filter="url(#neonGlow)" />
+  <polygon points="125,292 275,292 300,317 100,317" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-width="2" />
+  
+  <!-- Pedestal Shadow -->
+  <ellipse cx="200" cy="335" rx="120" ry="12" fill="#000000" opacity="0.6" />
+  
+  <!-- Figurine Stand Stem -->
+  <rect x="196" y="240" width="8" height="50" fill="#ffffff" fill-opacity="0.3" rx="4" />
+  
+  <!-- Title Badge Label -->
+  <rect x="130" y="348" width="140" height="28" rx="14" fill="#1f1235" stroke="#ff758c" stroke-width="2" />
+  <text x="200" y="367" font-family="'Outfit', 'Inter', sans-serif" font-weight="bold" font-size="12" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">COLLECTION</text>
+</svg>

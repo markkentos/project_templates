@@ -1,78 +1,49 @@
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 from .forms import CheckoutForm, ReviewForm
-from .models import Cart, Category, Product, Review, SalesPoint
-from .services.adapter import AnimeTrendAdapter
-from .services.commands import (
-    AddToCartCommand,
-    AdvanceOrderStateCommand,
-    CheckoutCommand,
-    RemoveCartItemCommand,
-    UpdateCartItemCommand,
-    get_open_cart,
-)
-from .services.composite import CatalogIterator, ProductLeaf, build_catalog_tree
-from .services.math_models import SalesTrendModel
-from .services.pricing import get_pricing_strategy, pricing_choices
-from .services.proxy import ProductCatalogProxy
-from .services.shipping import get_shipping_strategy, shipping_choices
-from .services.singletons import StoreSettings
-from .services.states import OrderStateMachine
-
-
-def cart_totals(cart, pricing_code="regular", shipping_code="courier"):
-    subtotal = cart.subtotal
-    price = get_pricing_strategy(pricing_code).calculate(subtotal)
-    shipping = get_shipping_strategy(shipping_code).calculate(price.total)
-    return {
-        "subtotal": subtotal,
-        "price": price,
-        "shipping": shipping,
-        "total": price.total + shipping.price,
-    }
+from .models import Review, Order
+from .services.facade import StoreFacade
+from .services.composite import ProductLeaf
 
 
 def home(request):
-    proxy = ProductCatalogProxy()
-    products = proxy.list_products()[:8]
-    trend_product = Product.objects.filter(sales_points__isnull=False).distinct().order_by("-sales_count").first()
-    trend = None
-    if trend_product:
-        trend = SalesTrendModel().calculate(trend_product.sales_points.all(), supply_units=trend_product.stock)
-    return render(
-        request,
-        "store/product_list.html",
-        {
-            "title": "Каталог аниме атрибутики",
-            "products": products,
-            "categories": Category.objects.filter(parent__isnull=True),
-            "featured_categories": Category.objects.filter(parent__isnull=True)[:4],
-            "recommendations": AnimeTrendAdapter().recommended_products(),
-            "trend_product": trend_product,
-            "trend": trend,
-            "query": "",
-            "current_category": None,
-        },
-    )
+    facade = StoreFacade()
+    products = facade.list_products(limit=8)
+    
+    context = {
+        "title": "Каталог аниме атрибутики",
+        "products": products,
+        "categories": facade.get_all_categories(),
+        "featured_categories": facade.get_featured_categories(limit=4),
+        "recommendations": facade.get_recommendations(limit=4),
+        "query": "",
+        "current_category": None,
+    }
+    return render(request, "store/product_list.html", context)
 
 
 def product_list(request, category_slug=None):
+    facade = StoreFacade()
     query = request.GET.get("q", "").strip()
     current_category = None
     if category_slug:
+        from django.shortcuts import get_object_or_404
+        from .models import Category
         current_category = get_object_or_404(Category, slug=category_slug)
-    products = ProductCatalogProxy().list_products(category_slug=category_slug, query=query)
+    
+    products = facade.list_products(category_slug=category_slug, query=query)
     return render(
         request,
         "store/product_list.html",
         {
             "title": current_category.name if current_category else "Все товары",
             "products": products,
-            "categories": Category.objects.filter(parent__isnull=True),
-            "featured_categories": Category.objects.filter(parent__isnull=True)[:4],
-            "recommendations": AnimeTrendAdapter().recommended_products(),
+            "categories": facade.get_all_categories(),
+            "featured_categories": facade.get_featured_categories(limit=4),
+            "recommendations": facade.get_recommendations(limit=4),
             "query": query,
             "current_category": current_category,
         },
@@ -80,7 +51,10 @@ def product_list(request, category_slug=None):
 
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product.objects.select_related("category"), slug=slug, is_active=True)
+    facade = StoreFacade()
+    detail = facade.get_product_detail(slug)
+    product = detail["product"]
+    
     if request.method == "POST":
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -90,18 +64,58 @@ def product_detail(request, slug):
     else:
         form = ReviewForm()
 
-    trend = SalesTrendModel().calculate(product.sales_points.all(), supply_units=product.stock)
     return render(
         request,
         "store/product_detail.html",
-        {"product": product, "form": form, "trend": trend},
+        {"product": product, "form": form},
     )
+
+
+@login_required
+def manager_dashboard(request):
+    if not request.user.is_staff:
+        messages.error(request, "Доступ запрещен. Требуются права менеджера.")
+        return redirect("store:home")
+        
+    facade = StoreFacade()
+    active_tab = request.GET.get("tab", "orders")
+    
+    context = {
+        "title": "Панель Менеджера",
+        "active_tab": active_tab,
+    }
+    
+    if active_tab == "orders":
+        context["orders"] = facade.get_all_orders()
+    elif active_tab == "logs":
+        context["logs"] = facade.get_all_logs()
+    elif active_tab == "forecast":
+        from .models import Product
+        products = Product.objects.all().order_by("name")
+        context["products"] = products
+        
+        selected_product_id = request.GET.get("product_id")
+        selected_product = None
+        trend = None
+        if selected_product_id:
+            try:
+                selected_product = Product.objects.get(id=selected_product_id)
+                detail = facade.get_product_detail(selected_product.slug)
+                trend = detail["trend"]
+            except Product.DoesNotExist:
+                pass
+        
+        context["selected_product"] = selected_product
+        context["trend"] = trend
+        
+    return render(request, "store/manager_dashboard.html", context)
 
 
 @require_POST
 def add_to_cart(request, slug):
+    facade = StoreFacade()
     try:
-        AddToCartCommand(request, slug, request.POST.get("quantity", 1)).execute()
+        facade.add_to_cart(request, slug, request.POST.get("quantity", 1))
         messages.success(request, "Товар добавлен в корзину.")
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -109,15 +123,16 @@ def add_to_cart(request, slug):
 
 
 def cart_view(request):
-    cart = get_open_cart(request)
+    facade = StoreFacade()
+    cart = facade.get_open_cart(request)
     if request.method == "POST":
         action = request.POST.get("action")
         try:
             if action == "update":
-                UpdateCartItemCommand(request, request.POST["item_id"], request.POST["quantity"]).execute()
+                facade.update_cart_item(request, request.POST["item_id"], request.POST["quantity"])
                 messages.success(request, "Корзина обновлена.")
             elif action == "remove":
-                RemoveCartItemCommand(request, request.POST["item_id"]).execute()
+                facade.remove_cart_item(request, request.POST["item_id"])
                 messages.success(request, "Позиция удалена.")
         except ValueError as exc:
             messages.error(request, str(exc))
@@ -130,17 +145,20 @@ def cart_view(request):
         "store/cart.html",
         {
             "cart": cart,
-            "totals": cart_totals(cart, pricing_code, shipping_code),
+            "totals": facade.get_cart_totals(cart, pricing_code, shipping_code),
             "pricing_code": pricing_code,
             "shipping_code": shipping_code,
-            "pricing_choices": pricing_choices(),
-            "shipping_choices": shipping_choices(),
+            "pricing_choices": facade.get_pricing_choices(),
+            "shipping_choices": facade.get_shipping_choices(),
+            "has_history": facade.has_command_history(request),
         },
     )
 
 
+@login_required
 def checkout(request):
-    cart = get_open_cart(request)
+    facade = StoreFacade()
+    cart = facade.get_open_cart(request)
     if not cart.items.exists():
         messages.warning(request, "Добавьте товары перед оформлением заказа.")
         return redirect("store:cart")
@@ -149,11 +167,47 @@ def checkout(request):
         "pricing_strategy": request.GET.get("pricing", "regular"),
         "delivery_method": request.GET.get("shipping", "courier"),
     }
+    
+    # Предзаполнение данных из профиля покупателя (если они есть)
+    customer_profile = getattr(request.user, "customer_profile", None)
+    if customer_profile:
+        initial["name"] = customer_profile.name
+        initial["email"] = customer_profile.email
+        initial["phone"] = customer_profile.phone
+        initial["city"] = customer_profile.city
+    else:
+        # Если профиля нет, подгружаем базовую почту
+        initial["email"] = request.user.email
+
     if request.method == "POST":
         form = CheckoutForm(request.POST)
         if form.is_valid():
             try:
-                order = CheckoutCommand(request, form.cleaned_data).execute()
+                # Оформление заказа
+                order = facade.checkout_cart(request, form.cleaned_data)
+                
+                # Связываем Customer с User, если он еще не связан!
+                if customer_profile:
+                    order.customer = customer_profile
+                    order.save(update_fields=["customer"])
+                else:
+                    from store.models import Customer
+                    customer, _ = Customer.objects.get_or_create(
+                        email=request.user.email,
+                        defaults={
+                            "user": request.user,
+                            "name": form.cleaned_data["name"],
+                            "email": form.cleaned_data["email"],
+                            "phone": form.cleaned_data.get("phone", ""),
+                            "city": form.cleaned_data.get("city", "")
+                        }
+                    )
+                    if not customer.user:
+                        customer.user = request.user
+                        customer.save(update_fields=["user"])
+                    order.customer = customer
+                    order.save(update_fields=["customer"])
+                
                 messages.success(request, f"Заказ #{order.pk} создан.")
                 return redirect(order)
             except ValueError as exc:
@@ -164,18 +218,39 @@ def checkout(request):
     return render(
         request,
         "store/checkout.html",
-        {"form": form, "cart": cart, "totals": cart_totals(cart, initial["pricing_strategy"], initial["delivery_method"])},
+        {"form": form, "cart": cart, "totals": facade.get_cart_totals(cart, initial["pricing_strategy"], initial["delivery_method"])},
     )
 
 
+@login_required
 def order_detail(request, pk):
-    from .models import Order
-
-    order = get_object_or_404(Order.objects.prefetch_related("items", "logs"), pk=pk)
-    machine = OrderStateMachine()
+    facade = StoreFacade()
+    detail = facade.get_order_detail(pk)
+    order = detail["order"]
+    transitions = detail["transitions"]
+    
+    # Разграничение прав доступа (RBAC)!
+    if not request.user.is_staff:
+        # Обычный покупатель видит только свои собственные заказы
+        if order.customer.user != request.user and order.customer.email != request.user.email:
+            messages.error(request, "У вас нет прав для просмотра этого заказа.")
+            return redirect("store:home")
+    
     if request.method == "POST":
+        action = request.POST.get("action")
+        # Покупателю разрешено самостоятельно отменить свой заказ, если он на стадии "Создан" (created)
+        is_customer_cancel = (
+            not request.user.is_staff
+            and action == "cancel"
+            and order.status == Order.Status.CREATED
+        )
+        
+        if not request.user.is_staff and not is_customer_cancel:
+            messages.error(request, "Только менеджеры могут изменять статус этого заказа.")
+            return redirect(order)
+            
         try:
-            AdvanceOrderStateCommand(order.pk, request.POST["action"]).execute()
+            facade.advance_order_state(order.pk, action)
             messages.success(request, "Статус заказа обновлен.")
         except ValueError as exc:
             messages.error(request, str(exc))
@@ -184,37 +259,80 @@ def order_detail(request, pk):
     return render(
         request,
         "store/order_detail.html",
-        {"order": order, "transitions": machine.allowed_transitions(order)},
+        {"order": order, "transitions": transitions},
     )
 
 
+@login_required
+def profile_view(request):
+    from decimal import Decimal
+    from store.models import Order
+    facade = StoreFacade()
+    
+    # Получаем профиль покупателя, связанный с текущим пользователем
+    customer_profile = getattr(request.user, "customer_profile", None)
+    
+    orders = []
+    total_spent = Decimal("0.00")
+    orders_count = 0
+    
+    if customer_profile:
+        # Выбираем все заказы данного покупателя
+        orders = Order.objects.filter(customer=customer_profile).order_by("-created_at")
+        orders_count = orders.count()
+        
+        # Считаем общую сумму успешных (не отмененных) заказов
+        successful_orders = orders.exclude(status=Order.Status.CANCELLED)
+        total_spent = sum((o.total for o in successful_orders), Decimal("0.00"))
+        
+    context = {
+        "title": "Личный кабинет",
+        "customer": customer_profile,
+        "orders": orders,
+        "orders_count": orders_count,
+        "total_spent": total_spent,
+    }
+    return render(request, "store/profile.html", context)
+
+
 def catalog_tree(request):
-    roots = build_catalog_tree()
-    flat_items = list(CatalogIterator(roots))
-    return render(request, "store/catalog_tree.html", {"roots": roots, "flat_items": flat_items, "product_leaf": ProductLeaf})
+    facade = StoreFacade()
+    tree = facade.get_catalog_tree_and_flat()
+    return render(
+        request, 
+        "store/catalog_tree.html", 
+        {
+            "roots": tree["roots"], 
+            "flat_items": tree["flat_items"], 
+            "product_leaf": ProductLeaf
+        }
+    )
 
 
 def patterns_demo(request):
-    settings = StoreSettings()
-    singleton_ids = (id(StoreSettings()), id(StoreSettings()))
-    sample_subtotal = 6000
-    pricing_results = [strategy.calculate(sample_subtotal) for strategy in [get_pricing_strategy(code) for code, _ in pricing_choices()]]
-    shipping_results = [get_shipping_strategy(code).calculate(sample_subtotal) for code, _ in shipping_choices()]
-    trend_product = Product.objects.filter(sales_points__isnull=False).distinct().first()
-    trend = SalesTrendModel().calculate(trend_product.sales_points.all(), supply_units=trend_product.stock) if trend_product else None
-    flat_tree = list(CatalogIterator(build_catalog_tree()))
+    facade = StoreFacade()
+    demo_data = facade.get_patterns_demo_data()
     return render(
         request,
         "store/patterns_demo.html",
         {
-            "settings": settings,
-            "singleton_ids": singleton_ids,
-            "pricing_results": pricing_results,
-            "shipping_results": shipping_results,
-            "trend_product": trend_product,
-            "trend": trend,
-            "adapter_titles": AnimeTrendAdapter().labels(),
-            "tree_count": len(flat_tree),
-            "sales_points_count": SalesPoint.objects.count(),
+            "settings": demo_data["settings"],
+            "singleton_ids": demo_data["singleton_ids"],
+            "pricing_results": demo_data["pricing_results"],
+            "shipping_results": demo_data["shipping_results"],
+            "trend_product": demo_data["trend_product"],
+            "trend": demo_data["trend"],
+            "adapter_titles": demo_data["adapter_titles"],
+            "tree_count": demo_data["tree_count"],
+            "sales_points_count": demo_data["sales_points_count"],
         },
     )
+
+
+def undo_cart_action(request):
+    facade = StoreFacade()
+    if facade.undo_last_action(request):
+        messages.success(request, "Последнее действие в корзине отменено.")
+    else:
+        messages.warning(request, "Нечего отменять.")
+    return redirect("store:cart")

@@ -324,7 +324,34 @@ button:disabled {
     overflow: hidden;
     background: var(--paper);
     border: 1px solid var(--line);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--teal);
+    box-shadow: 0 12px 24px rgba(18, 119, 111, 0.12), 0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+.strategy-form select {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--line);
     border-radius: 8px;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.strategy-form select:hover,
+.strategy-form select:focus {
+    border-color: var(--teal);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(18, 119, 111, 0.15);
 }
 
 .product-image {
@@ -646,3 +673,711 @@ code {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- MANAGER DASHBOARD & ROLE SWITCH --- */
+.role-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.role-badge.client-active {
+    color: var(--teal);
+    background: #eaf7f3;
+    border: 1px solid #b9d9d1;
+}
+
+.role-badge.client-active:hover {
+    background: var(--teal);
+    color: white;
+    border-color: var(--teal);
+}
+
+.role-badge.manager-active {
+    color: var(--accent);
+    background: #fde5e3;
+    border: 1px solid #f9c2bd;
+}
+
+.role-badge.manager-active:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Manager Panel */
+.manager-dashboard {
+    margin: 28px 0;
+    padding: 24px;
+    background: #fdfcf7;
+    border: 2px dashed var(--gold);
+    border-radius: 12px;
+}
+
+.manager-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+}
+
+.manager-header h2 {
+    margin-bottom: 4px;
+    color: var(--gold);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.manager-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.manager-sections .manager-card:nth-child(3) {
+    grid-column: span 2;
+}
+
+.manager-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.manager-card h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: var(--ink);
+    border-bottom: 2px solid var(--bg);
+    padding-bottom: 8px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.manager-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+}
+
+.manager-table th, 
+.manager-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.manager-table th {
+    background: var(--bg);
+    font-weight: bold;
+    color: var(--muted);
+}
+
+.manager-table tr:hover {
+    background: #fafafc;
+}
+
+.manager-table tr.danger-row {
+    background: #fff5f5;
+}
+
+.manager-table tr.danger-row:hover {
+    background: #ffe3e3;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.created { background: #e0e0e0; color: #424242; }
+.status-badge.paid { background: #d1e7dd; color: #0f5132; }
+.status-badge.packed { background: #cff4fc; color: #087990; }
+.status-badge.shipped { background: #efe2f8; color: #5f1092; }
+.status-badge.delivered { background: #d2f4ea; color: #0f5132; }
+.status-badge.cancelled { background: #f8d7da; color: #842029; }
+
+/* Deficit Badges */
+.deficit-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.deficit-badge.ok { background: #e2f0d9; color: #385723; }
+.deficit-badge.deficit { background: #fce4d6; color: #c65911; }
+
+.btn-small {
+    padding: 4px 8px;
+    min-height: 28px;
+    font-size: 11px;
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.btn-small:hover {
+    background: var(--muted);
+    border-color: var(--muted);
+}
+
+.order-link {
+    color: var(--teal);
+    font-weight: bold;
+}
+
+.order-link:hover {
+    text-decoration: underline;
+}
+
+/* Logs */
+.log-container {
+    max-height: 260px;
+    overflow-y: auto;
+    display: grid;
+    gap: 8px;
+    background: #fafafa;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+}
+
+.log-item {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-left: 4px solid var(--teal);
+    background: var(--paper);
+    border-radius: 0 4px 4px 0;
+}
+
+.log-item.warning {
+    border-left-color: var(--gold);
+}
+
+.log-item.error {
+    border-left-color: var(--accent);
+}
+
+.log-time {
+    color: var(--muted);
+    margin-right: 8px;
+}
+
+.log-type {
+    color: var(--ink);
+    margin-right: 8px;
+}
+
+/* --- STATE STEPPER (ORDER PROCESS STAGES) --- */
+.order-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 24px 0;
+    padding: 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+}
+
+.step-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    background: #e0e0e0;
+    color: var(--muted);
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.step-line {
+    height: 4px;
+    background: #e0e0e0;
+    flex: 2;
+    margin: 0 8px;
+    margin-top: -24px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    min-width: 20px;
+}
+
+.step.active .step-icon {
+    background: var(--teal);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(18, 119, 111, 0.15);
+}
+
+.step.active .step-label {
+    color: var(--teal);
+}
+
+.step-line.active {
+    background: var(--teal);
+}
+
+.cancelled-banner {
+    margin: 24px 0;
+    padding: 16px;
+    background: #fde5e3;
+    border: 1px solid #f9c2bd;
+    color: var(--accent-dark);
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* --- UNDO BUTTON & FLEX CART HEADER --- */
+.cart-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.undo-btn {
+    background: var(--gold);
+    border-color: var(--gold);
+}
+
+.undo-btn:hover {
+    background: #c38415;
+    border-color: #c38415;
+}
+
+@media (max-width: 900px) {
+    .manager-sections {
+        grid-template-columns: 1fr;
+    }
+    .manager-sections .manager-card:nth-child(3) {
+        grid-column: span 1;
+    }
+    .order-stepper {
+        padding: 10px;
+    }
+    .step-line {
+        margin-top: -22px;
+    }
+}
+
+/* --- AUTHORIZATION PAGES & CREDENTIAL HINTS --- */
+.login-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 32px;
+    margin-top: 40px;
+}
+
+.login-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 36px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.02);
+}
+
+.login-card h1 {
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: var(--ink);
+}
+
+.login-subtitle {
+    margin-bottom: 28px;
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.error-banner {
+    padding: 12px;
+    margin-bottom: 20px;
+    background: #fde5e3;
+    border: 1px solid #f9c2bd;
+    color: var(--accent-dark);
+    font-weight: bold;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Hints Panel */
+.credentials-hint {
+    align-self: start;
+    position: sticky;
+    top: 86px;
+    display: grid;
+    gap: 16px;
+}
+
+.credentials-hint h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.credentials-hint p {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.role-hint-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.role-hint-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.role-hint-card.manager h3 {
+    color: var(--accent);
+}
+
+.role-hint-card.customer h3 {
+    color: var(--teal);
+}
+
+.role-hint-card p {
+    font-size: 13px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.role-hint-card ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.role-hint-card li {
+    margin-bottom: 4px;
+}
+
+.role-hint-card code {
+    display: inline;
+    padding: 2px 5px;
+    background: var(--bg);
+}
+
+/* User Nav Greeting */
+.user-greeting {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--ink);
+    padding-right: 12px;
+    border-right: 1px solid var(--line);
+}
+
+.user-greeting strong {
+    font-weight: 700;
+}
+
+.user-greeting .role-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+.auth-btn {
+    font-size: 13px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.auth-btn.login {
+    color: white;
+    background: var(--teal);
+}
+
+.auth-btn.login:hover {
+    background: #0d5f58;
+}
+
+.auth-btn.logout {
+    color: var(--muted);
+    background: #eeeeef;
+    border: 1px solid var(--line);
+}
+
+.auth-btn.logout:hover {
+    background: #e2e2e6;
+    color: var(--ink);
+}
+
+/* --- LOGIN CENTERING & SIMPLIFICATION --- */
+.login-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    min-height: 50vh;
+}
+
+.login-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 36px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.02);
+    width: 100%;
+    max-width: 460px;
+}
+
+/* --- MANAGER TABS SYSTEM --- */
+.manager-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.tab-link {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-link:hover {
+    color: var(--ink);
+    background: var(--bg);
+}
+
+.tab-link.active {
+    color: var(--teal);
+    background: #eaf7f3;
+    border-color: #b9d9d1;
+}
+
+.wide-card {
+    width: 100%;
+}
+
+/* --- POPUP MODAL (VANILLA CSS) --- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--paper);
+    padding: 32px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    animation: modalSlideDown 0.3s ease-out;
+}
+
+.close-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--accent);
+}
+
+@keyframes modalSlideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* --- CUSTOMER PROFILE STYLES --- */
+.profile-layout {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    margin-top: 26px;
+}
+
+.profile-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+    align-self: start;
+}
+
+.profile-card h2 {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--ink);
+    border-bottom: 2px solid var(--bg);
+    padding-bottom: 8px;
+}
+
+.profile-info-block {
+    text-align: left;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.stat-box {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-box small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.stat-box strong {
+    font-size: 20px;
+    color: var(--ink);
+}
+
+.stat-box.golden {
+    background: linear-gradient(135deg, #fffaf0 0%, #fff3db 100%);
+    border-color: #efd391;
+}
+
+.stat-box.golden strong {
+    color: #c38415;
+}
+
+@media (max-width: 900px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- COLOR CODED REVIEWS --- */
+.review.review-good {
+    border-left: 5px solid var(--teal);
+    background: #f6faf9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.01);
+}
+
+.review.review-bad {
+    border-left: 5px solid var(--accent);
+    background: #fff8f8;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.01);
+}
+
+.rating-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.rating-badge.good {
+    background: #eaf7f3;
+    color: var(--teal);
+    border: 1px solid #c9ede3;
+}
+
+.rating-badge.bad {
+    background: #fde5e3;
+    color: var(--accent-dark);
+    border: 1px solid #f9cdca;
+}
+
+

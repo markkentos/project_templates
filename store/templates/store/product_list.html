@@ -9,20 +9,10 @@
         <h1>{{ title }}</h1>
         <p>Фигурки, манга, постеры, одежда и аксессуары по популярным тайтлам.</p>
     </div>
-    {% if trend and trend_product %}
-        <aside class="trend-panel">
-            <span>Математическая модель</span>
-            <strong>{{ trend_product.anime_title }}</strong>
-            <p>
-                {{ trend.direction }}: спрос {{ trend.demand_forecast }} шт.,
-                предложение {{ trend.supply_forecast }} шт.,
-                прогноз продаж {{ trend.forecast }} шт.
-            </p>
-        </aside>
-    {% endif %}
 </section>
 
 <section class="toolbar">
+
     <form class="search-form" method="get" action="{% url 'store:product_list' %}">
         <input type="search" name="q" value="{{ query }}" placeholder="Название товара или аниме">
         <button type="submit">Найти</button>

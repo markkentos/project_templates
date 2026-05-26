@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3c3f42" />
+      <stop offset="50%" stop-color="#202224" />
+      <stop offset="100%" stop-color="#101112" />
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e0e0e0" />
+      <stop offset="47%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#a0a0a0" />
+      <stop offset="53%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e8e8e8" />
+    </linearGradient>
+    <linearGradient id="neonGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb703" />
+      <stop offset="100%" stop-color="#fb8500" />
+    </linearGradient>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Card Canvas -->
+  <rect width="400" height="400" rx="24" fill="url(#bgGrad)" />
+  
+  <!-- Dynamic manga diagonal screen speed lines -->
+  <g stroke="#ffffff" stroke-opacity="0.1" stroke-width="1.5">
+    <line x1="50" y1="50" x2="350" y2="350" />
+    <line x1="0" y1="100" x2="300" y2="400" />
+    <line x1="100" y1="0" x2="400" y2="300" />
+    <line x1="200" y1="0" x2="400" y2="200" />
+    <line x1="0" y1="200" x2="200" y2="400" />
+  </g>
+  
+  <!-- Book Spine / Pages Depth Shadows -->
+  <path d="M70,300 Q200,320 330,300 L320,110 Q200,130 80,110 Z" fill="#000000" opacity="0.4" />
+  
+  <!-- Open Manga Book Pages (3D curved effect) -->
+  <path d="M80,290 C140,300 190,290 200,285 C210,290 260,300 320,290 L310,100 C250,110 210,100 200,105 C190,100 150,110 90,100 Z" fill="url(#pageGrad)" stroke="#101112" stroke-width="3" />
+  
+  <!-- Centered Book Crease Seam Line -->
+  <path d="M200,105 L200,285" stroke="#404245" stroke-width="2" />
+  
+  <!-- Left Page Split Panels (Manga grids) -->
+  <!-- Top Left panel -->
+  <path d="M105,120 L185,125 L185,190 L105,185 Z" fill="#ffffff" stroke="#101112" stroke-width="2" />
+  <!-- Speed lines inside Top Left panel -->
+  <g stroke="#101112" stroke-width="0.8" opacity="0.3">
+    <line x1="110" y1="130" x2="180" y2="135" />
+    <line x1="110" y1="145" x2="180" y2="150" />
+    <line x1="110" y1="160" x2="180" y2="165" />
+  </g>
+  <!-- Character/Sword silhouette in Left Panel -->
+  <path d="M120,175 L150,135 L160,142 L130,182 Z" fill="#101112" />
+  
+  <!-- Bottom Left panel -->
+  <path d="M105,195 L185,200 L185,270 L105,265 Z" fill="#ffffff" stroke="#101112" stroke-width="2" />
+  <!-- Action screentone dots pattern -->
+  <circle cx="120" cy="220" r="1.5" fill="#101112" />
+  <circle cx="130" cy="220" r="1.5" fill="#101112" />
+  <circle cx="140" cy="220" r="1.5" fill="#101112" />
+  <circle cx="125" cy="235" r="1.5" fill="#101112" />
+  <circle cx="135" cy="235" r="1.5" fill="#101112" />
+  <path d="M150,210 Q170,230 180,255" fill="none" stroke="#101112" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Right Page Split Panels -->
+  <!-- Big Right Diagonal Slash Panel -->
+  <path d="M215,125 L295,120 L280,270 L215,275 Z" fill="#ffffff" stroke="#101112" stroke-width="2" />
+  
+  <!-- Manga Speed/Focus Lines on Right Page -->
+  <g stroke="#101112" stroke-dasharray="10, 5" stroke-width="1.2">
+    <line x1="215" y1="130" x2="280" y2="210" />
+    <line x1="220" y1="180" x2="280" y2="210" />
+    <line x1="215" y1="230" x2="280" y2="210" />
+    <line x1="250" y1="260" x2="280" y2="210" />
+    <line x1="270" y1="130" x2="280" y2="210" />
+  </g>
+  
+  <!-- Action Starburst Speech Bubble Overlaying Right Page! (Glowing Neon) -->
+  <path d="M245,180 L255,185 L268,175 L268,190 L285,188 L275,200 L290,212 L275,214 L280,230 L266,220 L260,235 L252,218 L238,222 L246,208 L232,198 L248,196 Z" fill="url(#neonGold)" stroke="#ffffff" stroke-width="2.5" filter="url(#neonGlow)" />
+  
+  <!-- Inner impact lines -->
+  <path d="M255,203 Q260,205 268,203" fill="none" stroke="#ffffff" stroke-width="2" filter="url(#neonGlow)" />
+  
+  <!-- Title Badge Label -->
+  <rect x="130" y="348" width="140" height="28" rx="14" fill="#202224" stroke="#ffb703" stroke-width="2" />
+  <text x="200" y="367" font-family="'Outfit', 'Inter', sans-serif" font-weight="bold" font-size="12" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">GRAPHIC MANGA</text>
+</svg>

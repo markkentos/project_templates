@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111c24" />
+      <stop offset="50%" stop-color="#0b1218" />
+      <stop offset="100%" stop-color="#040608" />
+    </linearGradient>
+    <linearGradient id="hoodieGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2d3d" />
+      <stop offset="100%" stop-color="#131b24" />
+    </linearGradient>
+    <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+    <linearGradient id="neonMagenta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff007f" />
+      <stop offset="100%" stop-color="#7000ff" />
+    </linearGradient>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Card Canvas -->
+  <rect width="400" height="400" rx="24" fill="url(#bgGrad)" />
+  
+  <!-- Cyberpunk background circular grid -->
+  <circle cx="200" cy="180" r="120" fill="none" stroke="#4facfe" stroke-width="1" opacity="0.15" />
+  <circle cx="200" cy="180" r="90" fill="none" stroke="#ff007f" stroke-width="1" stroke-dasharray="6, 8" opacity="0.15" />
+  
+  <!-- Metal Clothes Hanger Hook -->
+  <path d="M200,85 C190,85 185,75 195,65 C205,55 215,65 210,75 L200,95" fill="none" stroke="#a0aab5" stroke-width="4" stroke-linecap="round" />
+  <path d="M165,115 L200,95 L235,115" fill="none" stroke="#a0aab5" stroke-width="6" stroke-linecap="round" />
+  
+  <!-- Hoodie Shadow -->
+  <ellipse cx="200" cy="335" rx="100" ry="10" fill="#000000" opacity="0.5" />
+  
+  <!-- Sleeves (Back Layer) -->
+  <!-- Left Sleeve -->
+  <path d="M150,135 L90,210 L115,225 L160,165 Z" fill="#131b24" stroke="#ff007f" stroke-width="2" />
+  <!-- Right Sleeve -->
+  <path d="M250,135 L310,210 L285,225 L240,165 Z" fill="#131b24" stroke="#ff007f" stroke-width="2" />
+  
+  <!-- Sleeve Cuff Ribbing -->
+  <polygon points="90,210 100,200 112,215 102,225" fill="url(#neonCyan)" />
+  <polygon points="310,210 300,200 288,215 298,225" fill="url(#neonCyan)" />
+  
+  <!-- Sleeve Cybernetic Stripes -->
+  <path d="M125,165 L105,190" fill="none" stroke="url(#neonCyan)" stroke-width="6" filter="url(#neonGlow)" />
+  <path d="M275,165 L295,190" fill="none" stroke="url(#neonCyan)" stroke-width="6" filter="url(#neonGlow)" />
+  
+  <!-- Main Hoodie Torso Body -->
+  <path d="M150,130 L250,130 L265,280 L135,280 Z" fill="url(#hoodieGrad)" stroke="#4facfe" stroke-width="2" />
+  
+  <!-- Bottom Ribbed Band -->
+  <rect x="130" y="280" width="140" height="15" rx="4" fill="#131b24" stroke="#4facfe" stroke-width="2" />
+  
+  <!-- Large Kangaroo Pocket -->
+  <path d="M160,225 L240,225 L250,265 L150,265 Z" fill="#182330" stroke="#a0aab5" stroke-width="1.5" />
+  <path d="M160,225 L150,245 M240,225 L250,245" stroke="#a0aab5" stroke-width="1.5" />
+  
+  <!-- Cyberpunk Katakana/Aesthetic Chest Print -->
+  <!-- Inner glowing chest graphics -->
+  <rect x="165" y="155" width="70" height="45" rx="6" fill="#131b24" stroke="#ff007f" stroke-width="1" />
+  <!-- Neon Cross/Aesthetic Symbol -->
+  <path d="M200,162 L200,192 M185,177 L215,177" fill="none" stroke="url(#neonMagenta)" stroke-width="3" filter="url(#neonGlow)" />
+  <circle cx="200" cy="177" r="10" fill="none" stroke="url(#neonCyan)" stroke-width="2" />
+  
+  <!-- Big Cozy Hood (Overlay) -->
+  <path d="M150,135 C150,85 200,75 200,75 C200,75 250,85 250,135 C230,145 200,140 200,145 C200,140 170,145 150,135 Z" fill="#182330" stroke="#4facfe" stroke-width="2" />
+  <!-- Hood Inner Lining Shadow -->
+  <path d="M170,132 C170,110 200,105 200,105 C200,105 230,110 230,132 C215,136 200,134 200,136 C200,134 185,136 170,132 Z" fill="#0b1218" />
+  
+  <!-- Glowing Neon Drawstrings (Cords) -->
+  <!-- Left Cord -->
+  <path d="M185,138 Q180,180 175,205" fill="none" stroke="url(#neonCyan)" stroke-width="3" stroke-linecap="round" filter="url(#neonGlow)" />
+  <circle cx="175" cy="205" r="4" fill="#ffffff" filter="url(#neonGlow)" />
+  <!-- Right Cord -->
+  <path d="M215,138 Q220,185 225,215" fill="none" stroke="url(#neonCyan)" stroke-width="3" stroke-linecap="round" filter="url(#neonGlow)" />
+  <circle cx="225" cy="215" r="4" fill="#ffffff" filter="url(#neonGlow)" />
+  
+  <!-- Title Badge Label -->
+  <rect x="130" y="348" width="140" height="28" rx="14" fill="#0b1218" stroke="#4facfe" stroke-width="2" />
+  <text x="200" y="367" font-family="'Outfit', 'Inter', sans-serif" font-weight="bold" font-size="12" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">STREETWEAR</text>
+</svg>

@@ -96,12 +96,23 @@ class GiftWrapDecorator(ProductDataDecorator):
         return payload
 
 
+class MerchFactoryProvider:
+    """Паттерн Фабричный метод для создания объектов фабрик."""
+
+    @staticmethod
+    def get_factory(merch_type) -> AbstractMerchFactory:
+        factories = {
+            "figure": FigureFactory(),
+            "clothes": ApparelFactory(),
+            "poster": PrintFactory(),
+            "manga": MangaFactory(),
+            "accessory": AccessoryFactory(),
+        }
+        if merch_type not in factories:
+            raise ValueError(f"Неизвестный тип товара: {merch_type}")
+        return factories[merch_type]
+
+
 def factory_for_merch_type(merch_type):
-    factories = {
-        "figure": FigureFactory(),
-        "clothes": ApparelFactory(),
-        "poster": PrintFactory(),
-        "manga": MangaFactory(),
-        "accessory": AccessoryFactory(),
-    }
-    return factories[merch_type]
+    return MerchFactoryProvider.get_factory(merch_type)
+

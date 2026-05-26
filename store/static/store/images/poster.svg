@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Sky Sunrise Gradient -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1b1c3a" />
+      <stop offset="35%" stop-color="#472c5a" />
+      <stop offset="70%" stop-color="#8a3064" />
+      <stop offset="100%" stop-color="#ff7b54" />
+    </linearGradient>
+    <!-- Sun Neon Glow Gradient -->
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff0055" />
+      <stop offset="100%" stop-color="#ffcc00" />
+    </linearGradient>
+    <!-- Mountain Gradients -->
+    <linearGradient id="mountainGradBack" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4d2254" />
+      <stop offset="100%" stop-color="#1e1026" />
+    </linearGradient>
+    <linearGradient id="mountainGradFront" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2d163a" />
+      <stop offset="100%" stop-color="#0f0714" />
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Canvas Canvas -->
+  <rect width="400" height="400" rx="24" fill="url(#skyGrad)" />
+  
+  <!-- The Huge Anime Crimson Sun -->
+  <circle cx="200" cy="180" r="75" fill="url(#sunGrad)" filter="url(#glow)" />
+  
+  <!-- Distant mountain ridge silhouettes (Mount Fuji shape) -->
+  <!-- Left ridge -->
+  <path d="M0,400 L0,300 Q90,260 140,240 L200,210 Q240,235 290,280 L350,330 L400,350 L400,400 Z" fill="url(#mountainGradBack)" opacity="0.9" />
+  
+  <!-- Central Majestic Fuji Mountain Silhouette -->
+  <!-- Peak Snowcap Cap (Overlay) -->
+  <polygon points="200,140 178,190 222,190" fill="#ffffff" opacity="0.95" filter="url(#glow)" />
+  <path d="M178,190 Q200,195 222,190 L228,205 Q200,215 172,205 Z" fill="#ffffff" opacity="0.8" />
+  
+  <!-- Mount Fuji Base -->
+  <polygon points="200,140 100,360 300,360" fill="url(#mountainGradFront)" />
+  
+  <!-- Foreground low hills and forest line contours -->
+  <path d="M0,400 L0,340 Q70,330 130,350 Q180,365 240,345 Q310,325 400,355 L400,400 Z" fill="#0c0410" />
+  
+  <!-- Traditional Sakura Tree branches -->
+  <!-- Main thick branch -->
+  <path d="M400,60 C320,80 300,120 280,160 M330,80 C290,110 270,100 250,110 M310,85 C295,95 290,90 285,85" fill="none" stroke="#0c0410" stroke-width="5" stroke-linecap="round" />
+  
+  <!-- Flying Glowing Sakura Petals / Blossoms in the wind -->
+  <g fill="#ff7eb3" filter="url(#glow)">
+    <!-- Blossom clusters on branches -->
+    <circle cx="280" cy="160" r="7" />
+    <circle cx="276" cy="164" r="5" />
+    <circle cx="285" cy="157" r="6" />
+    
+    <circle cx="250" cy="110" r="8" />
+    <circle cx="244" cy="108" r="6" />
+    <circle cx="254" cy="114" r="5" />
+    
+    <circle cx="285" cy="85" r="7" />
+    <circle cx="290" cy="80" r="5" />
+    
+    <circle cx="330" cy="80" r="9" />
+    <circle cx="338" cy="84" r="6" />
+    
+    <!-- Blowing petals -->
+    <path d="M220,180 Q205,190 210,195 C215,195 220,190 225,185 Z" />
+    <path d="M150,220 Q135,225 142,232 C148,232 152,225 155,222 Z" />
+    <path d="M90,260 Q80,268 85,274 C90,274 95,268 98,264 Z" />
+    <path d="M260,250 Q250,258 253,263 C257,263 262,258 264,254 Z" />
+  </g>
+  
+  <g fill="#ffffff" filter="url(#glow)">
+    <path d="M222,182 Q218,187 220,190 C222,190 224,187 226,184 Z" />
+    <path d="M152,222 Q148,227 150,230 C152,230 154,227 156,224 Z" />
+  </g>
+  
+  <!-- Atmospheric Wind Swoosh Lines -->
+  <path d="M50,200 Q150,230 250,200 M120,240 Q210,260 300,230" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity="0.25" />
+  
+  <!-- Title Badge Label -->
+  <rect x="130" y="348" width="140" height="28" rx="14" fill="#0f0714" stroke="#ff7b54" stroke-width="2" />
+  <text x="200" y="367" font-family="'Outfit', 'Inter', sans-serif" font-weight="bold" font-size="12" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">ART POSTER</text>
+</svg>

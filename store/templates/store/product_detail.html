@@ -29,15 +29,6 @@
                 <button type="submit" {% if not product.is_available %}disabled{% endif %}>Добавить</button>
             </form>
         </div>
-        <div class="model-line">
-            <span>Прогноз продаж</span>
-            <strong>{{ trend.forecast }} шт.</strong>
-            <small>
-                спрос {{ trend.demand_forecast }} шт.,
-                предложение {{ trend.supply_forecast }} шт.;
-                {{ trend.supply_direction }}
-            </small>
-        </div>
     </div>
 </section>
 
@@ -45,20 +36,59 @@
     <div>
         <h2>Отзывы</h2>
         {% for review in product.reviews.all %}
-            <article class="review">
+            <article class="review {% if review.rating >= 4 %}review-good{% else %}review-bad{% endif %}">
                 <strong>{{ review.customer_name }}</strong>
-                <span>{{ review.rating }}/5</span>
-                <p>{{ review.text }}</p>
+                <span class="rating-badge {% if review.rating >= 4 %}good{% else %}bad{% endif %}">{{ review.rating }}/5</span>
+                {% if review.text %}
+                    <p>{{ review.text }}</p>
+                {% else %}
+                    <p class="empty-text" style="font-style: italic; color: var(--muted); margin-top: 8px; font-size: 13px;">Оценка без отзыва</p>
+                {% endif %}
             </article>
         {% empty %}
             <p class="empty">Пока нет отзывов.</p>
         {% endfor %}
     </div>
-    <form class="form-panel" method="post">
-        {% csrf_token %}
-        <h2>Оставить отзыв</h2>
-        {{ form.as_p }}
-        <button type="submit">Отправить</button>
-    </form>
+    
+    <div class="form-panel review-trigger-panel" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+        <h2>Поделитесь мнением</h2>
+        <p style="margin-bottom:18px; color:var(--muted); font-size:14px;">Оставьте отзыв о товаре, чтобы помочь другим покупателям с выбором!</p>
+        <button id="openReviewModal" class="button">Оставить отзыв</button>
+    </div>
 </section>
+
+<!-- Модальное окно (Popup Modal) для добавления отзывов (Vanilla CSS + JS) -->
+<div id="reviewModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeReviewModal">&times;</span>
+        <h2>Оставить отзыв</h2>
+        <form method="post" id="reviewForm">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="button wide">Отправить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById("reviewModal");
+        const btn = document.getElementById("openReviewModal");
+        const closeBtn = document.getElementById("closeReviewModal");
+
+        if (btn && modal && closeBtn) {
+            btn.onclick = function() {
+                modal.classList.add("active");
+            };
+            closeBtn.onclick = function() {
+                modal.classList.remove("active");
+            };
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove("active");
+                }
+            };
+        }
+    });
+</script>
 {% endblock %}

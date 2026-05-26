@@ -1,0 +1,102 @@
+{% extends "store/base.html" %}
+
+{% block title %}Личный кабинет | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>Личный кабинет</h1>
+    <p>Просмотр контактных данных, статистики покупок и истории заказов.</p>
+</section>
+
+<div class="profile-layout">
+    <!-- Левая колонка: Профиль и Статистика -->
+    <aside class="profile-card">
+        <h2>👤 Ваши данные</h2>
+        <div class="profile-info-block">
+            <dl class="specs">
+                <div>
+                    <dt>Имя пользователя:</dt>
+                    <dd>{{ request.user.username }}</dd>
+                </div>
+                <div>
+                    <dt>ФИО:</dt>
+                    <dd>{{ customer.name|default:request.user.username }}</dd>
+                </div>
+                <div>
+                    <dt>Email:</dt>
+                    <dd>{{ customer.email|default:request.user.email }}</dd>
+                </div>
+                <div>
+                    <dt>Телефон:</dt>
+                    <dd>{{ customer.phone|default:"Не указан" }}</dd>
+                </div>
+                <div>
+                    <dt>Город:</dt>
+                    <dd>{{ customer.city|default:"Не указан" }}</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <h2 style="margin-top: 26px;">📊 Статистика трат</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <small>Всего заказов</small>
+                <strong>{{ orders_count }}</strong>
+            </div>
+            <div class="stat-box golden">
+                <small>Всего потрачено</small>
+                <strong>{{ total_spent }} руб.</strong>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Правая колонка: Таблица заказов -->
+    <section class="profile-orders-section">
+        <div class="manager-card wide-card" style="margin-top:0;">
+            <h3>📦 История ваших заказов</h3>
+            <p style="color:var(--muted); font-size:14px; margin-bottom:18px;">
+                Здесь отображаются все оформленные вами заказы. Нажмите на номер заказа для подробного просмотра или отмены.
+            </p>
+            
+            <div class="table-container">
+                <table class="manager-table">
+                    <thead>
+                        <tr>
+                            <th>Номер</th>
+                            <th>Дата оформления</th>
+                            <th>Доставка / Оплата</th>
+                            <th>Статус</th>
+                            <th>Итого</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td><a href="{% url 'store:order_detail' order.id %}" class="order-link">#{{ order.id }}</a></td>
+                                <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    <small>{{ order.get_delivery_method_display }} / {{ order.get_pricing_strategy_display }}</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge {{ order.status }}">{{ order.get_status_display }}</span>
+                                </td>
+                                <td><strong>{{ order.total }} руб.</strong></td>
+                                <td>
+                                    <a href="{% url 'store:order_detail' order.id %}" class="button btn-small">Детали</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="empty" style="text-align:center; padding:40px;">
+                                    🛍️ Вы еще не совершили ни одной покупки.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
