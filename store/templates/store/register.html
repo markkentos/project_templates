@@ -1,0 +1,100 @@
+{% extends "store/base.html" %}
+
+{% block title %}Регистрация покупателя | Anime Shelf{% endblock %}
+
+{% block content %}
+<section class="login-layout">
+    <div class="login-card" style="max-width: 520px; width: 100%;">
+        <h1>Регистрация</h1>
+        <p class="login-subtitle">Создайте аккаунт покупателя, чтобы отслеживать свои заказы и пользоваться скидками отаку.</p>
+        
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="error-banner">
+                        ❌ {{ error }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="id_username">Имя пользователя (Логин) <span style="color: var(--accent);">*</span></label>
+                <input type="text" name="username" value="{{ form.username.value|default:'' }}" required id="id_username" placeholder="Придумайте логин">
+                {% if form.username.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email <span style="color: var(--accent);">*</span></label>
+                <input type="email" name="email" value="{{ form.email.value|default:'' }}" required id="id_email" placeholder="example@mail.com">
+                {% if form.email.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_name">Имя и фамилия <span style="color: var(--accent);">*</span></label>
+                <input type="text" name="name" value="{{ form.name.value|default:'' }}" required id="id_name" placeholder="Иван Иванов">
+                {% if form.name.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_phone">Телефон</label>
+                <input type="text" name="phone" value="{{ form.phone.value|default:'' }}" id="id_phone" placeholder="+7 (999) 123-45-67">
+                {% if form.phone.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_city">Город</label>
+                <input type="text" name="city" value="{{ form.city.value|default:'' }}" id="id_city" placeholder="Москва">
+                {% if form.city.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.city.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">Пароль <span style="color: var(--accent);">*</span></label>
+                <input type="password" name="password" required id="id_password" placeholder="Введите сложный пароль">
+                {% if form.password.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password_confirm">Подтверждение пароля <span style="color: var(--accent);">*</span></label>
+                <input type="password" name="password_confirm" required id="id_password_confirm" placeholder="Повторите введенный пароль">
+                {% if form.password_confirm.errors %}
+                    <div style="color: var(--accent); font-size: 13px; margin-top: 4px; font-weight: bold;">
+                        {% for error in form.password_confirm.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <button class="button wide" type="submit" style="margin-top: 10px;">Зарегистрироваться</button>
+        </form>
+        
+        <p style="margin-top: 20px; text-align: center; font-size: 14px; color: var(--muted);">
+            Уже зарегистрированы? <a href="{% url 'store:login' %}" style="color: var(--teal); font-weight: bold;">Войти здесь</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

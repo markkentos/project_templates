@@ -143,5 +143,58 @@ class StoreWorkflowTests(TestCase):
         order.refresh_from_db()
         self.assertEqual(order.status, Order.Status.CANCELLED)
 
+    def test_fill_db_command(self):
+        from django.core.management import call_command
+        
+        call_command("fill_db")
+        
+        self.assertGreaterEqual(Category.objects.count(), 10)
+        self.assertGreaterEqual(Product.objects.count(), 20)
+
+    def test_user_registration_success(self):
+        self.client.logout()
+        
+        response = self.client.post(
+            reverse("store:register"),
+            {
+                "username": "newbuyer",
+                "email": "newbuyer@example.com",
+                "name": "Новый Покупатель",
+                "phone": "+79998887766",
+                "city": "Казань",
+                "password": "strongpassword123",
+                "password_confirm": "strongpassword123",
+            }
+        )
+        self.assertRedirects(response, reverse("store:profile"))
+        
+        new_user = User.objects.get(username="newbuyer")
+        self.assertEqual(new_user.email, "newbuyer@example.com")
+        self.assertFalse(new_user.is_staff)  # Только покупатель!
+        
+        customer = Customer.objects.get(user=new_user)
+        self.assertEqual(customer.name, "Новый Покупатель")
+        self.assertEqual(customer.phone, "+79998887766")
+        self.assertEqual(customer.city, "Казань")
+
+    def test_user_registration_password_mismatch(self):
+        self.client.logout()
+        
+        response = self.client.post(
+            reverse("store:register"),
+            {
+                "username": "mismatchuser",
+                "email": "mismatch@example.com",
+                "name": "Неверный Пароль",
+                "phone": "",
+                "city": "",
+                "password": "password123",
+                "password_confirm": "differentpassword",
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="mismatchuser").exists())
+
+
 
 # Create your tests here.

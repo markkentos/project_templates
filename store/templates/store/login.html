@@ -28,6 +28,10 @@
             
             <button class="button wide" type="submit">Войти</button>
         </form>
+        
+        <p style="margin-top: 20px; text-align: center; font-size: 14px; color: var(--muted);">
+            Нет аккаунта? <a href="{% url 'store:register' %}" style="color: var(--teal); font-weight: bold;">Зарегистрироваться</a>
+        </p>
     </div>
 </section>
 {% endblock %}

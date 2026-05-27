@@ -36,6 +36,7 @@
                     <button type="submit" class="auth-btn logout" style="font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; transition: all 0.2s ease;">Выйти</button>
                 </form>
             {% else %}
+                <a href="{% url 'store:register' %}" class="auth-btn" style="color: var(--teal); border: 1px solid var(--teal); background: transparent; margin-right: 8px; display: inline-block;">Регистрация</a>
                 <a href="{% url 'store:login' %}" class="auth-btn login">Войти</a>
             {% endif %}
         </nav>
