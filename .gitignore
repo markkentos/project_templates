@@ -10,8 +10,6 @@ env/
 ENV/
 
 # Django / local runtime files
-db.sqlite3
-db.sqlite3-journal
 *.log
 *.pot
 local_settings.py
