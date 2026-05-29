@@ -1,12 +1,57 @@
 from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
-from .forms import CheckoutForm, ReviewForm
-from .models import Review, Order
+from .forms import CheckoutForm, LoginForm, RegistrationForm, ReviewForm
+from .models import Customer, Review, Order
 from .services.facade import StoreFacade
 from .services.composite import ProductLeaf
+from .services.commands import CommandHistoryRegistry, transfer_open_cart
+
+
+class StoreLoginView(auth_views.LoginView):
+    authentication_form = LoginForm
+    template_name = "store/login.html"
+
+    def form_valid(self, form):
+        old_session_key = self.request.session.session_key
+        response = super().form_valid(form)
+        new_session_key = self.request.session.session_key
+        transfer_open_cart(old_session_key, new_session_key)
+        CommandHistoryRegistry().transfer_history(old_session_key, new_session_key)
+        return response
+
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect("store:home")
+
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email = form.cleaned_data["email"]
+            user.first_name = form.cleaned_data.get("first_name", "")
+            user.last_name = form.cleaned_data.get("last_name", "")
+            user.save()
+
+            display_name = " ".join(filter(None, [user.first_name, user.last_name])) or user.username
+            Customer.objects.create(
+                user=user,
+                name=display_name,
+                email=user.email,
+            )
+
+            login(request, user)
+            messages.success(request, "Аккаунт создан. Добро пожаловать в Anime Shelf.")
+            return redirect("store:home")
+    else:
+        form = RegistrationForm()
+
+    return render(request, "store/register.html", {"form": form})
 
 
 def home(request):
@@ -191,7 +236,6 @@ def checkout(request):
                     order.customer = customer_profile
                     order.save(update_fields=["customer"])
                 else:
-                    from store.models import Customer
                     customer, _ = Customer.objects.get_or_create(
                         email=request.user.email,
                         defaults={

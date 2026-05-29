@@ -1037,6 +1037,27 @@ code {
     font-size: 14px;
 }
 
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(29, 134, 123, 0.14);
+}
+
 .error-banner {
     padding: 12px;
     margin-bottom: 20px;
@@ -1046,6 +1067,40 @@ code {
     font-weight: bold;
     border-radius: 6px;
     font-size: 14px;
+}
+
+.field-error {
+    margin-top: 8px;
+    color: var(--accent-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.auth-switch {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.auth-secondary-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-secondary-link:hover {
+    background: var(--bg);
 }
 
 /* Hints Panel */
@@ -1379,5 +1434,3 @@ code {
     color: var(--accent-dark);
     border: 1px solid #f9cdca;
 }
-
-

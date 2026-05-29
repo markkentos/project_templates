@@ -28,6 +28,40 @@ def get_open_cart(request):
     return cart
 
 
+def transfer_open_cart(old_session_key, new_session_key):
+    if not old_session_key or not new_session_key or old_session_key == new_session_key:
+        return
+
+    source_cart = Cart.objects.filter(
+        session_key=old_session_key,
+        status=Cart.Status.OPEN,
+    ).first()
+    if not source_cart:
+        return
+
+    target_cart, _ = Cart.objects.get_or_create(
+        session_key=new_session_key,
+        status=Cart.Status.OPEN,
+    )
+
+    if source_cart.pk == target_cart.pk:
+        return
+
+    for source_item in source_cart.items.select_related("product"):
+        target_item, item_created = CartItem.objects.get_or_create(
+            cart=target_cart,
+            product=source_item.product,
+            defaults={"quantity": source_item.quantity},
+        )
+        if not item_created:
+            target_item.quantity = min(
+                target_item.quantity + source_item.quantity,
+                source_item.product.stock,
+            )
+            target_item.save(update_fields=["quantity", "updated_at"])
+    source_cart.delete()
+
+
 class AddToCartCommand(Command):
     def __init__(self, request, product_slug, quantity=1):
         self.request = request
@@ -178,3 +212,10 @@ class CommandHistoryRegistry(metaclass=SingletonMeta):
             return False
         return len(self._history.get(session_key, [])) > 0
 
+    def transfer_history(self, old_session_key, new_session_key):
+        if not old_session_key or not new_session_key or old_session_key == new_session_key:
+            return
+        old_history = self._history.pop(old_session_key, [])
+        if not old_history:
+            return
+        self._history.setdefault(new_session_key, []).extend(old_history)

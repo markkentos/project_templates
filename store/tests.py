@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 
-from .models import Category, Order, ProcessLog, Product, SalesPoint, Customer
+from .models import Cart, Category, Order, ProcessLog, Product, SalesPoint, Customer
 from .services.commands import AdvanceOrderStateCommand
 from .services.math_models import SalesTrendModel
 from .services.pricing import get_pricing_strategy
@@ -142,6 +142,69 @@ class StoreWorkflowTests(TestCase):
         self.assertEqual(response.status_code, 302)
         order.refresh_from_db()
         self.assertEqual(order.status, Order.Status.CANCELLED)
+
+    def test_cart_survives_login_session_rotation(self):
+        self.client.logout()
+        self.client.post(
+            reverse("store:add_to_cart", args=[self.product.slug]),
+            {"quantity": 2, "next": reverse("store:cart")},
+        )
+
+        old_session_key = self.client.session.session_key
+        old_cart = Cart.objects.get(session_key=old_session_key, status=Cart.Status.OPEN)
+        self.assertEqual(old_cart.items.get().quantity, 2)
+
+        response = self.client.post(
+            reverse("store:login"),
+            {"username": "testuser", "password": "password123"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        new_session_key = self.client.session.session_key
+        self.assertNotEqual(old_session_key, new_session_key)
+
+        new_cart = Cart.objects.get(session_key=new_session_key, status=Cart.Status.OPEN)
+        self.assertEqual(new_cart.items.get(product=self.product).quantity, 2)
+        self.assertFalse(Cart.objects.filter(session_key=old_session_key, status=Cart.Status.OPEN).exists())
+
+    def test_register_creates_user_and_customer_profile(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("store:register"),
+            {
+                "username": "newbuyer",
+                "email": "newbuyer@example.com",
+                "first_name": "New",
+                "last_name": "Buyer",
+                "password1": "safePassword123",
+                "password2": "safePassword123",
+            },
+        )
+
+        self.assertRedirects(response, reverse("store:home"))
+        user = User.objects.get(username="newbuyer")
+        customer = Customer.objects.get(user=user)
+        self.assertEqual(customer.email, "newbuyer@example.com")
+        self.assertEqual(customer.name, "New Buyer")
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
+
+    def test_register_rejects_duplicate_email(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("store:register"),
+            {
+                "username": "anotherbuyer",
+                "email": "demo@example.com",
+                "first_name": "Another",
+                "last_name": "Buyer",
+                "password1": "safePassword123",
+                "password2": "safePassword123",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Пользователь с таким email уже существует.")
+        self.assertFalse(User.objects.filter(username="anotherbuyer").exists())
 
 
 # Create your tests here.

@@ -60,51 +60,54 @@ graph TD
 
 ---
 
-## 2. БП «Импорт и генерация демо-каталога»
+## 2. БП «Пополнение каталога и аналитика спроса»
 
 ### Описание процесса:
-Процесс запускается администратором через консольную команду `python manage.py seed_store`. Он считывает массив демо-данных, последовательно определяет фабрику для каждой категории мерча, при необходимости декорирует данные (лимитированная серия, подарочная упаковка), создает или обновляет записи в БД, а также рассчитывает историю продаж для аналитической математической модели.
+Процесс состоит из двух связанных частей. Сначала администратор подготавливает демонстрационный каталог через консольную команду `python manage.py seed_store`: система очищает старые записи, пересобирает категории, товары, промоакции и точки продаж. Затем менеджер входит в веб-интерфейс, открывает вкладку прогноза спроса, выбирает товар и получает расчет от `SalesTrendModel` на основе `SalesPoint` и текущего остатка `Product.stock`.
 
 ### BPMN-схема процесса на Mermaid:
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
 graph TD
-    subgraph Admin ["Администратор (Admin Lane)"]
-        Start2([Начало: Запуск команды seed_store]) --> CheckFinish([Конец: Демо-каталог готов])
+    subgraph Admin ["Администратор / Менеджер"]
+        Start2([Старт]) --> RunSeed[Администратор запускает seed_store]
+        ManagerLogin[Менеджер входит в систему] --> OpenForecast[Открыть /manager?tab=forecast]
+        ShowForecast[Получить прогноз и рекомендацию] --> End2([Конец])
     end
 
     subgraph System ["Система генератора (System Lane)"]
-        Start2 --> CleanCache[Сбросить кэш ProductCatalogProxy]
-        CleanCache --> LoadCategories[Создать структуру Category]
-        LoadCategories --> LoopProducts[Для каждого товара в списке PRODUCTS]
-        
-        LoopProducts --> SelectFactory[Выбрать AbstractMerchFactory]
-        SelectFactory --> CreatePayload[Сгенерировать базовые атрибуты]
-        CreatePayload --> IsLimited{Лимитированная серия?}
-        IsLimited -- Да --> DecorateLimited[Применить LimitedEditionDecorator: наценка +18%] --> IsGift
-        IsLimited -- Нет --> IsGift{Подарочная упаковка?}
-        
-        IsGift -- Да --> DecorateGift[Применить GiftWrapDecorator: +250 руб.] --> PersistProduct
-        IsGift -- Нет --> PersistProduct[Сохранить Product в БД]
-        
-        PersistProduct --> GenerateSales[Сгенерировать недельные продажи SalesPoint]
-        GenerateSales --> LoopProducts
-        LoopProducts -- Все обработаны --> PrintSuccess[Вывести отчет в консоль]
-        PrintSuccess --> CheckFinish
+        RunSeed --> Cleanup[Очистить старые демо-данные и сбросить кэш ProductCatalogProxy]
+        Cleanup --> CreateCategories[Создать Category и Promotion]
+        CreateCategories --> GenerateCatalog[Сгенерировать Product через Template Method + Abstract Factory + Decorator]
+        GenerateCatalog --> CreateSales[Создать недельные точки продаж SalesPoint]
+        CreateSales --> SeedUsers[Создать demo Customer и manager-аккаунты]
+        SeedUsers --> SeedDone[Вывести отчет: каталог и аналитические данные готовы]
+        SeedDone --> ManagerLogin
+        OpenForecast --> CheckRole{Пользователь is_staff?}
+        CheckRole -- Нет --> Deny[Запретить доступ]
+        CheckRole -- Да --> SelectProduct[Показать список товаров и выбранный Product]
+        SelectProduct --> LoadTrendData[Загрузить Product.sales_points и Product.stock]
+        LoadTrendData --> CalculateTrend[Рассчитать SalesTrendModel]
+        CalculateTrend --> ShowForecast
     end
 
     subgraph DB ["База данных (Database Lane)"]
-        LoadCategories -.-> DB_Category[(Таблица Category)]
-        PersistProduct -.-> DB_Product2[(Таблица Product)]
-        GenerateSales -.-> DB_SalesPoint[(Таблица SalesPoint)]
+        CreateCategories -.-> DB_Category[(Category)]
+        CreateCategories -.-> DB_Promotion[(Promotion)]
+        GenerateCatalog -.-> DB_Product[(Product)]
+        CreateSales -.-> DB_SalesPoint[(SalesPoint)]
+        SeedUsers -.-> DB_User[(auth.User)]
+        SeedUsers -.-> DB_Customer[(Customer)]
+        LoadTrendData -.-> DB_Product
+        LoadTrendData -.-> DB_SalesPoint
     end
 
     %% Стилизация
     classDef buyer fill:#fdf6e3,stroke:#b58900,stroke-width:2px;
     classDef system fill:#eee8d5,stroke:#268bd2,stroke-width:2px;
     classDef database fill:#f6f4ef,stroke:#586e75,stroke-width:2px;
-    class Start2,CheckFinish buyer;
-    class CleanCache,LoadCategories,LoopProducts,SelectFactory,CreatePayload,IsLimited,DecorateLimited,IsGift,DecorateGift,PersistProduct,GenerateSales,PrintSuccess system;
-    class DB_Category,DB_Product2,DB_SalesPoint database;
+    class Start2,RunSeed,ManagerLogin,OpenForecast,ShowForecast,End2 buyer;
+    class Cleanup,CreateCategories,GenerateCatalog,CreateSales,SeedUsers,SeedDone,CheckRole,Deny,SelectProduct,LoadTrendData,CalculateTrend system;
+    class DB_Category,DB_Promotion,DB_Product,DB_SalesPoint,DB_User,DB_Customer database;
 ```

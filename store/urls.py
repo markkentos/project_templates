@@ -19,6 +19,7 @@ urlpatterns = [
     path("patterns/", views.patterns_demo, name="patterns_demo"),
     path("tree/", views.catalog_tree, name="catalog_tree"),
     path("cart/undo/", views.undo_cart_action, name="undo_cart_action"),
-    path("login/", auth_views.LoginView.as_view(template_name="store/login.html"), name="login"),
+    path("register/", views.register, name="register"),
+    path("login/", views.StoreLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page="store:home"), name="logout"),
 ]
