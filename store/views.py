@@ -2,12 +2,9 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.models import User
 
-from .forms import CheckoutForm, ReviewForm, RegistrationForm
-from .models import Review, Order, Customer
+from .forms import CheckoutForm, ReviewForm
+from .models import Review, Order
 from .services.facade import StoreFacade
 from .services.composite import ProductLeaf
 
@@ -339,36 +336,3 @@ def undo_cart_action(request):
     else:
         messages.warning(request, "Нечего отменять.")
     return redirect("store:cart")
-
-
-def register(request):
-    if request.user.is_authenticated:
-        return redirect("store:profile")
-        
-    if request.method == "POST":
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    user = User.objects.create_user(
-                        username=form.cleaned_data["username"],
-                        email=form.cleaned_data["email"],
-                        password=form.cleaned_data["password"],
-                        is_staff=False  # Only Buyer role is allowed to register
-                    )
-                    Customer.objects.create(
-                        user=user,
-                        name=form.cleaned_data["name"],
-                        email=form.cleaned_data["email"],
-                        phone=form.cleaned_data.get("phone", ""),
-                        city=form.cleaned_data.get("city", "")
-                    )
-                auth_login(request, user)
-                messages.success(request, "Вы успешно зарегистрировались!")
-                return redirect("store:profile")
-            except Exception as exc:
-                messages.error(request, f"Ошибка при регистрации: {exc}")
-    else:
-        form = RegistrationForm()
-        
-    return render(request, "store/register.html", {"form": form})
